@@ -1,0 +1,301 @@
+---
+title: "STT 301 Learning R Markdown - Part 1"
+author: "Rellika Kisyula"
+date: "September 10, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+opts_chunk$set(echo = TRUE, comment = NA)
+```
+
+
+## Introduction
+
+---
+
+**Learning objectives:**
+
+  + R markdown syntax
+  + Data basics
+  + Object assignments
+  + Vectors
+
+---
+
+An R markdown (.Rmd) file will allow you to generate reproducible documents
+that include your R code, comments, and explanations. All of your homework
+assignments and majority of the in-class assignments will be in the form of an
+R markdown document.
+
+This .Rmd file demonstrates some of the syntax and style options. 
+
+## Basics
+
+- Everything we'll do comes down to applying **functions** to **data**.
+
+- **Data**:  things like 7, "seven", $7.000$, the matrix 
+  $\left[ \begin{array}{ccc} 7 & 7 & 7 \\ 7 & 7 & 7\end{array}\right]$, etc.
+
+- **Functions**: things like $\log{}$, $+$, $<$, $\mod{}$, etc.
+
+A function is a machine which turns input objects (**arguments**) into an
+output object (**return value**), possibly with **side effects**, according 
+to a definite rule.
+
+## Data building blocks
+
+You'll encounter different kinds of data types:
+
+- **Booleans**: Direct binary values: `TRUE` or `FALSE` in R
+- **Integers**: whole numbers (positive, negative or zero)
+- **Characters**: fixed-length blocks of bits, with special coding;
+  **strings** = sequences of characters
+- **Floating point numbers**: a fraction (with a finite number of bits) 
+  times an exponent, like $1.87 \times {10}^{6}$
+- **Missing or ill-defined values**: `NA`, `NaN`, etc.
+
+
+## Arithmetic operators and some built-in functions
+
+You can use R as a fancy calculator.
+
+Command | Description
+--------|-------------
+`+,-,*,\` | add, subtract, multiply, divide
+`^` | raise to the power of
+`%%` | remainder after division (ex: `8 %% 3 = 2`)
+`( )` | change the order of operations
+`log(), exp()` | logarithms and exponential (ex: `log(10) = 2.302`)
+`sqrt()` | square root
+`round()` | round to the nearest whole number (ex: `round(2.3) = 2`)
+`floor(), ceiling()` | round down, round up 
+`abs()` | absolute value
+
+Give an example using each of the commands above. Place these examples inside
+the below `R` chunk. Provide a comment as to which command is being used 
+(to comment in the script, console, or inside a chunk use #). Below is an 
+example using addition.
+
+Multiple lines of code can be placed in a single `R` chunk.
+
+
+```{r}
+10 + 7 # Addition
+
+10/5 # Division
+
+20 * 30 # Multiplication
+
+50 - 28 # Subtraction
+
+30 ^ 4 # Rise to Power of
+
+40 - 30 * ( 2 +1) # change the order of operations
+
+log(100, base = 10) # logarithms and exponentia
+
+sqrt(64) # Square root
+
+round(3.67, digits = 2) # round to the nearest whole number
+
+floor(4.56) # round down
+
+ceiling(4.56) # round up
+
+abs(-56)# Absolute value
+```
+
+
+## Operators continued
+
+**Comparisons** are binary operators; they take two objects, like numbers, and 
+give a boolean (TRUE or FALSE) response.
+  
+  Command | Description
+--------|-------------
+`>`  | greater than
+`<`  | less than
+`>=` | greater than or equal to
+`<=` | less than or equal to
+`==` | equal to (recall that `=` is for assignment and not checking equality)
+`!=` | not equal to
+`&`  | and (ex: `(5 > 7) & (6*7 == 42)` will return the value FALSE)
+`|`  | or  (ex: `(5 > 7) | (6*7 == 42)` will return the value TRUE)
+
+
+Give an example using each of the commands above. These should be inside the
+below `R` chunk. Provide a comment as to which command is being used. 
+You do not need to make all the comparisons be TRUE.
+
+```{r}
+100 > 22 # greater than
+
+200 < 300 # less than
+
+500 >=480 # greater or equal to
+
+500 <=480 # less or equal to
+
+(1 + 34) == (40 - 5) # equal to
+
+FALSE != FALSE # not equal to
+
+FALSE & TRUE # AND
+
+TRUE | FALSE # OR
+# Give examples here
+```
+
+
+## Variables and objects
+  
+We can assign names to objects. `R` has some built in object names such as `pi`.
+```{r}
+pi
+```
+
+Variables can be arguments to functions or operators, just like constants:
+```{r}
+pi*10
+cos(pi)
+```
+
+## Assignment operator
+
+Objects and variables are created with the **assignment operator**, 
+`<-` or `=`. Remeber that in RStudio you can use the shortcut `Alt + -` to 
+create the `<-` assignment operator. The shortcut includes convenient spacing
+before and after the assignment operator. 
+
+```{r}
+time_factor <- 12
+time_factor
+time_in_years = 2.5
+time_in_years * time_factor
+```
+
+The assignment operator also changes values:
+```{r}
+time_in_months <- time_in_years * time_factor
+time_in_months
+time_in_months <- 45
+time_in_months
+```
+
+Using names and variables makes code easier to design, easier to debug, 
+less prone to bugs, easier to improve,  and easier for others to read.
+
+Use descriptive variable names
+
+- Good: `num_students <- 35`
+- Bad: `ns <- 35 `
+
+##  The workspace
+
+What names have you defined values for? These will also appear in the
+Environment tab within RStudio.
+
+```{r}
+ls()
+```
+
+If you want to remove a variable use `rm()`.
+
+```{r}
+rm("time_in_months")
+ls()
+```
+
+To remove all objects from your workspace,
+```{r}
+rm(list=ls()) # remove all variables
+```
+This is sometimes helpful at the start of a new `R` session.
+
+## Some built-in functions on vectors
+
+Command | Description
+--------|------------
+`sum(vec)` | sums up all the elements of `vec`
+`mean(vec)` | mean of `vec`
+`median(vec)` | median of `vec`
+`min(vec), max(vec)` | the smallest or largest element of `vec`
+`sd(vec), var(vec)` | the standard deviation and variance of `vec`
+`length(vec)` | the number of elements in `vec`
+`sort(vec)` | returns the `vec` in sorted order
+`order(vec)` | returns the index that sorts the vector `vec`
+`unique(vec)` | lists the unique elements of `vec`
+`summary(vec)` | gives a five-number summary  
+
+
+Create a vector, and apply three of the functions above. Your vector should have
+at least 6 numbers. To create a vector you can use the concatenate function, 
+`c()`, with a single comma between each value. To practice good code syntax,
+after every comma there should be a space. Be sure to provide a comment as to 
+which function you are using.
+
+```{r}
+# Give examples here
+course_gpa = c(3.5, 4.0, 2.5, 4.0, 3.0, 3.5) # create course_gpa vector
+sum(course_gpa) # get the sum of the values in the vector
+mean(course_gpa) # get the mean GPA
+length(course_gpa) # get how many courses did
+```
+
+Below is an example using some of the above functions on a vector named 
+`course_grades`.
+
+```{r}
+course_grades <- c(80, 90, 93, 82, 95)
+
+mean(course_grades) # compute mean grade
+median(course_grades) # compute median grade
+sd(course_grades) # grade standard deviation
+```
+
+
+```{r}
+sort(course_grades) # type ?sort in your console to see the default sorting technique
+max(course_grades) # highest course grade
+min(course_grades) # lowest course grade
+```
+
+## Referencing elements of vectors
+```{r}  
+students <- c("Matt", "Louisa", "Frank", "Farhad", "Li")
+```
+  
+Vector of indices
+```{r}
+students[c(2,4)]
+```
+
+Vector of negative indices
+```{r}
+students[c(-1,-3)]
+```
+
+## More referencing
+
+`which()` returns the `TRUE` indices of a boolean vector.
+```{r}
+course_grades
+a_threshold <- 90 # A grade = 90% or higher
+course_grades >= a_threshold # vector of booleans
+a_students <- which(course_grades >= a_threshold) # Applying which() 
+a_students
+students[a_students] # Names of A students
+```
+
+## Named components
+  
+You can give names to elements or components of vectors.
+```{r}
+students
+names(course_grades) <- students # Assign names to the grades
+names(course_grades)
+course_grades[c("Matt","Frank","Li")] # Get final grades for 3 students
+```
+The labels in what `R` prints are not part of the value.

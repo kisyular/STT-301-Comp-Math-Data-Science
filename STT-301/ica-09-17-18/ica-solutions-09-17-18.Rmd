@@ -1,0 +1,258 @@
+---
+title: "STT 301: Data frames, missing data, and floating point arithmetic"
+author: "Shawn Santo"
+date: "September 17, 2018"
+output: html_document
+---
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(comment = NA, tidy = TRUE)
+```
+
+## Introduction
+
+---
+
+**Learning objectives:**
+
+  + Data frame subsetting
+  + Data frame manipulation
+  + Floating point arithmetic
+
+---
+
+**Required data: `gapminder.Rdata`**
+
+---
+
+Today we will investigate a data set from [http://www.gapminder.org](http://www.gapminder.org), 
+a site which contains a wealth of data and visualizations related to 
+health, wealth, population, etc. of countries of the world. The data set 
+has already been created in a `.Rdata` file available on D2L.
+
+```{r, cache = TRUE}
+load("gapminder.Rdata")
+ls() # see the variables in the environment
+```
+
+
+## Data frames
+
+The only object in `gapminder.Rdata` is the data frame object `gapminder`.
+The `str` function reports on the structure of an object in `R`. 
+It's often useful to use `str` when working with a new dataset.
+
+It is never okay to display large data sets in your .Rmd file. No one wants
+to wait minutes for the HTML file to generate when the .Rmd file is knit.
+
+```{r}
+str(gapminder)
+```
+
+We see that the `gapminder` data frame has six variables: `country` (a factor), 
+`year` (an integer), `pop` (numeric), `continent` (a factor), 
+`lifeExp` (numeric), and `gdpPercap` (numeric). 
+
+Extract the third row of the data frame?
+
+```{r}
+gapminder[3, ]
+```
+
+Extract the first 50 elements of the variable `year`?
+
+```{r}
+gapminder$year[1:50]
+```
+
+There are a lot of repeated values in `year`. The `unique` function reports 
+on the unique values in a variable. Display the unique values for the 
+variable `year`.
+
+```{r}
+unique(gapminder$year)
+```
+
+Next, we will work with two particular years, 1952 and 2002, from the dataset. 
+We will use the `subset` function to extract data frames containing data 
+from these two years. Below is how to extract the data for 1952. Recall that
+`==` is used for checking equality. If you need to remind yourself of the
+subset function type `?subset` in the console.
+
+```{r}
+gapminder1952 <- subset(gapminder, year == 1952)
+str(gapminder1952)
+```
+
+Now extract the data for 2002, and assign the resulting data frame to an 
+object named `gapminder2002`.
+
+```{r}
+gapminder2002 <- subset(gapminder, year == 2002)
+str(gapminder2002)
+```
+
+Let's create comparison boxplots of life expectancy for the five continents 
+in the dataset for 1952.
+
+```{r}
+boxplot(lifeExp ~ continent, data = gapminder1952)
+```
+
+What do you observe from these boxplots?
+
+**In both plots Oceania has the highest median life expectancy and Africa**
+**has the lowest median life expectancy.**
+
+Create similar boxplots for 2002. 
+
+```{r}
+boxplot(lifeExp ~ continent, data = gapminder2002, ylab = "Life Expectancy")
+```
+
+Do any obvious differences show up between the two years? 
+
+**The median life expectancies for Americas and Asia increased dramatically**
+**from 1952 to 2002.**
+
+Next, calculate the median life expectancy, for both 1952 and 2002. 
+
+```{r}
+median(gapminder1952$lifeExp)
+median(gapminder2002$lifeExp)
+```
+
+What do you notice?
+
+**The median life expectancy increased by about 1.5 times from 1952 to 2002.**
+
+Next, calculate the mean and median [GDP](https://en.wikipedia.org/wiki/Gross_domestic_product) 
+for both years. 
+```{r}
+c(mean(gapminder1952$gdpPercap), median(gapminder1952$gdpPercap))
+
+c(mean(gapminder2002$gdpPercap), median(gapminder2002$gdpPercap))
+```
+
+Again, what do you notice?
+
+**Both have increased by about 2.7 times over the 50 years since 2002.**
+
+Choose a country of interest. Create a data frame which only contains data from
+that country, and then draw scatter plots of the life expectancy, and of the 
+GDP, both versus the year. Recall that you can use the `plot` function to create
+a scatter plot in `R`. Try and tidy your plots by using some of the available
+graphical parameter options in the `plot` function.
+
+```{r}
+usa <- subset(gapminder, country == "United States")
+usa
+
+plot(usa$year, usa$lifeExp, xlab = "Year", ylab = "Life Expectancy")
+
+plot(usa$year, usa$gdpPercap, xlab = "Year", ylab = "GDP per Capita")
+
+```
+
+## NA, NaN, Inf, and -Inf
+
+For each of the following expressions, first guess what the output will be 
+when the expression is evaluated in `R`, then enter the expression in `R`.
+
+a. 1/0
+b. 0/0
+c. 1/0 + 5
+e. 1/0 - 1/0
+e. -2^(10000)
+f. exp(Inf)
+g. exp(-Inf)
+h. 0^0
+i. Inf^0
+j. 0^Inf
+k. log(0)
+l. log(-Inf)
+
+```{r}
+1/0
+0/0
+1/0 + 5
+1/0 - 1/0
+-2^(10000)
+exp(Inf)
+exp(-Inf)
+0^0
+Inf^0
+0^Inf
+log(0)
+log(-Inf)
+```
+
+## Floating point arithmetic
+
+`R`, as does most software, uses floating point arithmetic, which is not the 
+same as the arithmetic we learn. Computers cannot represent all 
+numbers exactly. This has important consequences when we test for equality 
+of numbers.
+
+Below are a few examples.
+
+First, would you expect `0.2 == 0.6/3` to return TRUE or FALSE? Test it out.
+
+```{r}
+0.2 == 0.6/3
+```
+
+Next consider the vector `point3` created below.
+
+```{r}
+point3 = c(0.3, 0.4 - 0.1, 0.5 - 0.2, 0.6 - 0.3, 0.7 - 0.4)
+point3
+```
+
+Test whether each element of `point3` is equal to 0.3
+
+```{r}
+0.3 == point3
+```
+
+In calculus we learned that 
+$$ e = \lim_{n\to\infty} (1 + 1/n)^n. $$
+
+So in principle we should be able to get closer and closer approximations to 
+$e$ by using larger and larger values of $n$ in the above expression. 
+Let's experiment.
+
+```{r}
+n <-  100
+(1 + 1/n)^n
+
+n <-  10000
+(1 + 1/n)^n
+
+n <-  1000000
+(1 + 1/n)^n
+
+n <- 100000000
+(1 + 1/n)^n
+```
+
+So far things are looking good. Investigate what happens as you increase $n$. 
+Each time multiply $n$ by 10. Continue until you get to
+10000000000000000. What happens?
+
+```{r}
+n <- 100000000
+(1 + 1/n)^n
+
+n <- 1000000000
+(1 + 1/n)^n
+
+n <- 10000000000
+(1 + 1/n)^n
+
+n <- 10000000000000000
+(1 + 1/n)^n
+```
+
+**The answer eventually results in  1, because in `R` for extremely large `n`,**
+**`1/n` results in 0.**

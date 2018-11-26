@@ -1,0 +1,79 @@
+---
+title: "STT 301: More with K-nn"
+author: "Rellika Kisyula"
+date: "11/12/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+Learning Objectives
+
+* K-nn
+* Linear regression
+
+```{r}
+packages = c("caret","tidyverse")
+#if a package is installed, it will be loaded
+#if any are not, the missing package(s) will be installed and loaded
+package.check <- lapply(packages, FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+        install.packages(x, dependencies = TRUE)
+        library(x, character.only = TRUE)
+    }
+})
+#verify they are loaded
+search()
+```
+
+## Wine Classification with K-nn
+
+### Read in data
+```{r}
+wineurl <- "https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data"
+wine.df <- read.csv(file = wineurl, header = FALSE)
+str(wine.df)
+```
+
+
+```{r}
+wine.df <- as_tibble(wine.df)
+
+colnames(wine.df) <- c("origin", "alcohol", "acid", 
+                       "ash", "alcalinity", "magnesium", 
+                       "phenols", "flavanoids", "nonflavanoid",
+                       "proanthocyanins","color.int", "hue",
+                       "od", "proline")
+
+wine.df$origin <- as.factor(wine.df$origin)
+```
+
+### Plot the data
+Get an idea of which variables influence the wine’s origin
+```{r}
+wine.df2 <- data.frame(origin = wine.df$origin, scale(wine.df[,-1]))
+wine.df2 <- gather(wine.df2, type,  value, -1)
+ggplot(data = wine.df2, mapping = aes(x = origin, y = value)) + 
+  geom_boxplot() + facet_wrap(~as.factor(type))
+
+ggplot(data = wine.df, mapping=aes(x = flavanoids, 
+                                   y = phenols, 
+                                   color =  origin, 
+                                   shape = origin)) + 
+  geom_point()
+
+with(wine.df, table(origin))
+```
+
+
+### Training and testing data sets
+Split the data into training and testing sets. Use `createDataPartition` from the `caret` package. You will need to use the arguments `y`, `p`, and `list = FALSE`. Confirm that your training and testing data sets have approximately equivalent origin proportions between the sets. Set the `seed` to 3033 if you want to obtain identical results.
+
+```{r}
+
+```
+

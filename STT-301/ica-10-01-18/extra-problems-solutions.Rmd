@@ -1,0 +1,378 @@
+---
+title: "STT 301: Practice with functions, loops, and conditionals"
+author: "Shawn Santo"
+output: html_document
+---
+
+```{r echo=FALSE, global_options}
+knitr::opts_chunk$set(comment = NA, tidy = TRUE, include = TRUE)
+```
+
+---
+
+The exercises below will give you some additional practice at writing
+functions, loops, and conditional statements. Some of the exercises ask you
+to write a function or loop despite the fact that there is already a 
+built-in R function or a way to use vectorization. The purpose is to get a
+deeper understanding of R programming basics and syntax.
+
+---
+
+#### Exercise 1
+
+Write a function called `add.one` that takes any numeric value as an input and will add one to that value. The function should return the new value.
+
+```{r}
+
+add.one <- function(x){
+  y <- x + 1
+  return(y)
+}
+
+# Test the function
+
+add.one(4)
+add.one(10)
+add.one(pi)
+
+```
+
+#### Exercise 2
+
+Write a function called `operation.two` that has two arguments. One argument should be a numeric value and the other argument should be one of the four arithmetic operators in the form of a character ("+", "-", "*", "/"). The function should add, subtract, multiply, or divide the numeric argument by 2 (depending on what operation the user enters) and return the result.
+
+```{r}
+# Using if-else-if statements
+
+operation.two <- function(x, oper){
+  if (oper == "+"){
+    y <- x + 2
+  }else if (oper == "-"){
+    y <- x - 2
+  }else if (oper == "*"){
+    y <- x * 2
+  }else if (oper == "/"){
+    y <- x / 2
+  }else{
+    y <- "Invalid Operation!"
+  }
+  return(y)
+}
+
+# Test the function
+
+operation.two(4, "+")
+operation.two(4, "-")
+operation.two(4, "*")
+operation.two(4, "/")
+operation.two(4, "%%")
+
+# Using a switch statement (we did not learn this and you are not required to know this, but it may be useful for you)
+
+operation.two.switch <- function(x, oper){
+  switch(oper,
+         "+" = x + 2, # addition option
+         "-" = x - 2, # subtraction option
+         "*" = x * 2, # multiplication option
+         "/" = x / 2, # division option
+         "Invalid Operation") # if none of the previous operators are entered
+}
+
+operation.two.switch(4, "+")
+operation.two.switch(4, "-")
+operation.two.switch(4, "*")
+operation.two.switch(4, "/")
+operation.two.switch(4, "%%")
+
+```
+
+#### Exercise 3
+
+Write a function that calculates the mean of a numeric vector `x`, ignoring the `s` smallest and `l` largest values (this is a trimmed mean). Thus, the function should have three arguments, with `s` and `l` being positive integers. Name the function `trimmed.mean`.
+
+```{r}
+trimmed.mean <- function(x, s, l){
+  # sort the values
+  x <- sort(x, decreasing = FALSE)
+  # remove s smallest and l largest values
+  trim.x <- x[-c((1:s), (length(x)-(l-1)):length(x))]
+  # compute the mean
+  trim.mean <- sum(trim.x)/length(trim.x)
+  return(trim.mean)
+}
+
+# Test the function
+
+x <- 1:10
+trimmed.mean(x, s=2, l=3)
+
+z <- c(4,7,9,10,12,-5,-100)
+trimmed.mean(z, s=2, l=1)
+```
+
+#### Exercise 4
+
+Write a function called `my.grade1`. The function should have four arguments: quiz score, homework score, exam score, and project score. Each of these should be in terms of a percentage (but no % sign should be entered). The function should output the student's grade (as a percentage - again no % sign needs to show) according to the grading structure in the STT 301 syllabus.
+
+```{r}
+my.grade1 <- function(q, h, e, p){
+  grade.p <- 0.15 * q + 0.35 * h + 0.25 * e + 0.25 * p
+  return(grade.p)
+}
+
+# Test the function
+
+my.grade1(q = 88, h = 95, e = 80, p = 95)
+
+```
+
+
+#### Exercise 5
+
+Write a function called `my.grade2`. The function should have one argument - student's grade as a percentage, but no % sign. Thus, the user should enter 95.8 or 74.0 for 95.8% and 74.0%, respectively. The function should output the student's grade on the 4.0 scale. Use the grading scale in the STT 301 syllabus.
+
+```{r}
+
+my.grade2 <- function(x){
+  if (x >= 90){
+    grade <- 4.0
+  }else if (x >= 85){
+    grade <- 3.5
+  }else if (x >= 80){
+    grade <- 3.0
+  }else if (x >= 75){
+    grade <- 2.5
+  }else if (x >= 70){
+    grade <- 2.0
+  }else if (x >= 65){
+    grade <- 1.5
+  }else if (x >= 60){
+    grade <- 1.0
+  }else{
+    grade <- 0.0
+  }
+  return(format(grade, nsmall = 1))
+}
+
+# Test the function
+
+my.grade2(93.1)
+my.grade2(50)
+my.grade2(77.9)
+
+```
+
+#### Exercise 6
+
+Write a for loop that prints the first 10 uppercase letters of the alphabet. Make use of the `print()` function. `LETTERS` in R will give the vector of uppercase letters.
+
+```{r}
+for (i in 1:10){
+  print(LETTERS[i])
+}
+```
+
+#### Exercise 7
+
+Write a while loop that prints the last 10 uppercase letters of the alphabet. Make use of the `print()` function. `LETTERS` in R will give the vector of uppercase letters.
+
+```{r}
+j <- 17
+
+while (j <= 26){
+  print(LETTERS[j])
+  j <- j + 1
+}
+
+```
+
+#### Exercise 8
+
+Create a loop that will store all uppercase and lowercase letters of the alphabet in a vector. The output should be as follows:
+
+"A" "a" "B" "b" "C" "c"...and so on until "Z" "z"
+
+The `LETTERS` and `letters` objects will give the vector of uppercase and lowercase letters of the alphabet, respectively.
+
+```{r}
+my.letters <- rep(0, 2*length(letters))
+for (k in 1:length(letters)){
+
+  my.letters[(2*k-1):(2*k)] <- c(LETTERS[k], letters[k])
+}
+my.letters
+
+```
+
+#### Exercise 9
+
+Create a function called `even.count`. The function should take an integer vector as its argument and should output the number of even numbers from the vector. 
+
+```{r}
+even.count <- function(x){
+  # recall that %% is the modulo operator
+  # a number mod 2 will always return 0 (if even) or 1 (if odd)
+  # the ! is for negation so we can count the even numbers
+  evens <- !(x %% 2) 
+  return(sum(evens))
+}
+
+# Test the function
+
+even.count(4)
+even.count(c(0,2,3,5,10,-4))
+
+```
+
+#### Exercise 10
+
+Create a function called `even.odd.count`. The function should take an integer vector as its argument and should output the number of even and odd numbers from the vector. The output of the function should be in the form of a list. 
+
+```{r}
+even.odd.count <- function(x){
+  # recall that %% is the modulo operator
+  # a number mod 2 will always return 0 (if even) or 1 (if odd)
+  n <- length(x)
+  odds <- sum(x %% 2)
+  evens <- n - odds
+  return(list(odd.count = odds, even.count = evens))
+}
+
+# Test the function
+
+even.odd.count(5)
+even.odd.count(c(4,1,0,-9,100))
+
+```
+
+#### Exercise 11
+
+Create loop to compute the mean of each column of the `mtcars` data frame. The data set `mtcars` is built into R. Just type `mtcars` and you will have access. You should store your results in a vector and display the results.
+
+```{r}
+# recall that dim gives the dimensions with the first value being number of rows, then number of columns
+mtcars.means <- rep(0, dim(mtcars)[2])
+
+for (i in 1:dim(mtcars)[2]){
+  mtcars.means[i] <- mean(mtcars[,i])
+}
+
+mtcars.means
+
+```
+
+#### Exercise 12
+
+Create a loop to compute the number of unique values in each column of the `iris` data frame. The data set `iris` is built into R. Just type `iris` and you will have access. You should store your results in a vector and display the results.
+
+```{r}
+# recall that dim gives the dimensions with the first value being number of rows, then number of columns
+iris.count <- rep(0, dim(iris)[2])
+
+for (h in 1:dim(iris)[2]){
+  iris.count[h] <- length(unique(iris[,h]))
+}
+
+iris.count
+
+```
+
+#### Exercise 13
+
+Write a function that displays the mean of each numeric column in a data frame, along with its name. Use the `iris` data set that is mentioned in exercise 11 to test your function. Name your function `show.mean`. For example, `show.mean(iris)` would print:
+
+Sepal.Length  Sepal.Width Petal.Length  Petal.Width 
+
+        5.84         3.06         3.76         1.20
+
+```{r}
+show.mean <- function(df){
+  df.means <- 0
+  j <- 0
+  
+  for (i in 1:dim(df)[2]){
+    if (is.numeric(df[,i])){
+      df.means[i] <- mean(df[,i])
+      j[i] <- i
+    }
+  }
+  names(df.means) <- names(iris)[j]
+
+  return(round(df.means,2))
+}
+
+# Test the function
+
+show.mean(iris)
+
+```
+
+#### Exercise 14
+
+Write a while loop to determine how many tries it takes to get three 1's in a row if you randomly sample from the Bernoulli distribution with probability 0.50. To generate a random number from a Bernoulli random variable use `rbinom(1,1,0.5)`.
+
+```{r}
+# initialize variables to store consecutive ones and trials
+ones.count <- 0
+trials <- 0
+
+while(ones.count < 3){
+  
+  x <- rbinom(1, 1, 0.50)
+  if (x==1){
+    ones.count <- ones.count + x # if a 1 is observed from rbinom(1,1,1) add the value to ones.count
+  }else{
+    ones.count <- 0 # if a 0 is observed from rbinom(1,1,1) reset the ones.count value to 0
+  }
+  
+  trials <- trials + 1 # update the trials count
+}
+
+trials
+
+# When p = 1 it should only take 3 trials
+
+
+```
+
+#### Exercise 15
+
+Create a function named `trials.count`. Use what you did in exercise 14 to now create a function to determine how many tries it takes to get to a user-specified number of 1's with a user specified probability of success on each trial. To modify the probability of success, change `rbinom(1, 1, 0.5)` to `rbinom(1, 1, p)` where p is the probability of success you want to use.
+
+```{r}
+
+trials.count <- function(count, p){
+  ones.count <- 0
+  trials <- 0
+
+  while(ones.count < count){
+  
+    x <- rbinom(1, 1, p)
+    if (x==1){
+      ones.count <- ones.count + x # if a 1 is observed from rbinom(1,1,1) add the value to ones.count
+    }else{
+      ones.count <- 0 # if a 0 is observed from rbinom(1,1,1) reset the ones.count value to 0
+    }
+  
+    trials <- trials + 1 # update the trials count
+  }
+
+  return(trials)
+}
+
+# Test the function
+
+trials.count(3, 1)
+trials.count(10, 1)
+trials.count(10, 0.5)
+
+```
+
+
+
+
+
+
+
+
+

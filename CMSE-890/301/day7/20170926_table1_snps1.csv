@@ -1,0 +1,7 @@
+Genome, Chromosome, Position, Ref, Alt, Gene
+HMG, 1, 10001, A, G, AGZT
+HMG, 1, 20011, G, C, UIC17
+HMG, 1, 30066, T, A, UIC17
+HMG, 1, 400000, T, A, YAZN
+HMG, 5, 498767, G, T, MZ02
+HMG, Z, 299, C, A, ?

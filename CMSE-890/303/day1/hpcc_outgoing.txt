@@ -1,0 +1,10 @@
+I am a former front-end programmer at MSU Usability/Accessibility Research and Consulting.
+In this opportunity, I assisted in developing responsive websites using ASP.Net Core, React JS
+as frontend technology and C# as backend technology. Currently, I am a Web Consultant at
+Spartan Innovation. As a front-end programmer, I have learned how to enhance user satisfaction
+by improving the usability, accessibility and aesthetics of the websites through creating and
+coding a friendly user-interface (UI). These opportunities have given me an experience with
+major programming languages such as C#, PHP, Python, Ruby, Java and JavaScript. Moreover,
+I have exposure in consulting with clients, designing websites, troubleshooting both front-end
+code (HTML, CSS, JavaScript) and front-end technologies (Vue JS, React JS, Sass and Angular JS). 
+

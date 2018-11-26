@@ -1,0 +1,10 @@
+base
+ggplot2
+ggrepel
+gapminder
+tidyr
+dplyr
+bindrcpp
+MASS
+VGAM
+class

@@ -1,0 +1,108 @@
+---
+title: 'STT 301: Project'
+author: "Rellika Kisyula"
+date: "11/4/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE, cache=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Project 2 - Lending Club - Data Analysis
+
+
+Lending Club,  a San Francisco-based company,  works to facilitate peer-to-peer loans through theironline  lending  platform.   Since  2007,  they  have  been  bringing  borrowers  and  investors  together  tofacilitate the way individuals access credit.  The company claims that at least $15.98 billion in loanshad been originated through their platform up to December 31, 2016.
+
+## Data
+The data on approved loans and declined loans is available athttps://www.lendingclub.com/info/download-data.actionfor all years since 2007.  A data dictionary is also provided on the website.The data dictionary includes  de nitions  for  all the data  attributes included in the  historical  data file and the in-funding  data file. For each  loan, over 100  characteristics are recorded  in the files. These characteristics can largely be divided into two groups:  features of the loan and features of theborrower. The loan features are the basic statistics one might expect, such as the loan amount, theinterest rate, and the term of the loan.  The borrower features are the characteristics of the borrowers that Lending Club has deemed important to collect. Such features include employment length, credithistory, and public default histories.
+
+You can browse their site for ideas and some of the loan statistics they calculate and depict.
+
+## Objective
+The aim of this project is to provide a comprehensive graphical summary of the important features ofthe data set.  This is kept vague so multiple groups can elect to do this project.  Here are some ideasto get you started.
+
+1. Examine loan features pre and post  nancial crisis 2008.
+2. What seems to be the major factors for loan approval/denial?
+3. Are there any common features among the loans for the various grades?
+4.Do any geographical trends/relationships exist?
+
+```{r}
+packages = c("stringr","tidyverse", "mapdata", "maps", "plotly")
+#if a package is installed, it will be loaded
+#if any are not, the missing package(s) will be installed and loaded
+package.check <- lapply(packages, FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+        install.packages(x, dependencies = TRUE)
+        library(x, character.only = TRUE)
+    }
+})
+#verify they are loaded
+search()
+```
+
+
+```{r}
+loanStats3a <- read_csv(file="LoanStats3a.csv", skip = 1)
+as.tibble(loanStats3a)
+```
+
+```{r}
+loanStats3a <- loanStats3a %>% separate(col = issue_d, into = c("month", "year"), sep="-")
+```
+
+```{r}
+#ifelse(nchar(loanStats3a$year)==2, paste("20",loanStats3a$year), loanStats3a$year)
+```
+
+```{r}
+statelatlong <- read_csv(file="statelatlong.csv")
+statelatlong <- as.tibble(statelatlong)
+statelatlong <- statelatlong %>% rename(addr_state = State, long = Longitude, lat = Latitude)
+```
+
+```{r}
+data_is.na <- sapply(loanStats3a, function(x) sum(is.na(x)))
+data_is.na %>%View()
+```
+
+
+```{r}
+loaned.state <- loanStats3a %>% group_by(addr_state) %>% summarise(loan.per.state = sum(loan_amnt, rm.na =T))
+loaned.state
+```
+
+```{r}
+state.data <- list(statelatlong, loaned.state)%>% reduce(left_join, by = "addr_state")
+state.data
+```
+
+
+
+
+```{r}
+m = map_data('state')
+
+ggmap <- ggplot() + 
+     geom_polygon( data=m, aes(x=long, y=lat,group=group),colour="black", fill="white" )+
+     geom_point(data = state.data, aes(x = long,y=lat, size = loan.per.state), colour = "red", na.rm = TRUE, shape=1) +
+     scale_x_continuous(limits = c(-125, -67))+
+     scale_y_continuous(limits = c(25, 50))
+ggplotly(ggmap)
+```
+
+
+
+
+
+```{r, cache=TRUE}
+temp <- list.files(pattern = "*.csv")
+myfiles <- lapply(temp, read_csv)
+```
+
+```{r}
+state.data <- myfiles %>% reduce(left_join, by = "State")
+state.data
+```
+
+

@@ -1,0 +1,311 @@
+---
+title: "STT 301: Lists, logical subsetting, and patterned data"
+author: "Shawn Santo"
+date: "September 19, 2018"
+output: html_document
+---
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(comment = NA, tidy = TRUE)
+```
+
+## Introduction
+
+---
+
+**Learning objectives:**
+
+  + Manipulating lists
+  + Logical subsetting
+  + Data frame manipulation
+  + Plot options
+
+---
+
+**Required data: `gapminder.Rdata`**
+
+---
+
+## Lists
+
+Today we will pull our first data set from a website and read it into `R`
+using the built-in function `read.table`.
+
+```{r}
+lsd <- read.table("http://www.stat.ufl.edu/~winner/data/lsd.dat", header = F)
+lsd
+```
+
+This small data set contains math test scores with tissue concentration of 
+lysergic acid diethylamide (LSD). The data set is from Wagner JG, e. 
+Correlation of performance test scores with "tissue concentration" of lysergic 
+acid diethylamide in human subjects. - PubMed - NCBI .
+Ncbi.nlm.nih.gov. First, we will assign our data column names, 
+look at the structure, and plot the data.
+
+```{r}
+colnames(lsd) <- c("concentration", "mathscore")
+str(lsd)
+
+plot(lsd$concentration, lsd$mathscore, 
+     xlab="LSD Concentration", ylab="Math Score", 
+     col="blue", pch=16)
+
+# pch is a graphical parameter that can have value 0 to 25 - it will change 
+# the points to a different shape/object
+
+# col is a graphical parameter that will set the color of the points
+```
+
+Compute the correlation between the two quantitative variables.
+
+```{r}
+cor(lsd)
+```
+
+Based on the scatter plot it does not appear that any of the linear model
+assumptions are violated. The `lm` function fits a linear model in `R` 
+and returns a list containing elements such as the coefficients, residuals, etc.
+
+Next we fit a linear model, assign it to the `R` object `lsd_lm`, 
+ask whether the object is a list, and obtain the names of the 
+elements of `lsd_lm`.
+
+We will learn about linear models and how to use the `lm` function in detail
+later in the course. For now our focus is on the output and working with lists.
+
+```{r}
+lsd_lm <- lm(mathscore ~ concentration, data = lsd)
+is.list(lsd_lm)
+names(lsd_lm)
+```
+
+We see that `lsd_lm` is a list with 12 components. 
+
+We can extract the components of `lsd_lm` in several ways. First, we will use
+the `$` operator. For example, `lsd_lm$residuals` returns the residuals 
+from the model. Use this method to extract the coefficients and the residuals
+from the list `lsd_lm`. Assign the results to `R` objects called 
+`lsd_lm_coef1` and `lsd_lm_resid1`, respectively.
+
+```{r}
+lsd_lm_coef1 <- lsd_lm$coefficients
+lsd_lm_resid1 <- lsd_lm$residuals
+```
+
+Now display the coefficients and the residuals. 
+```{r}
+lsd_lm_coef1
+lsd_lm_resid1
+```
+
+We might expect that the resulting objects are vectors. 
+Use `is.vector` to test whether this is the case.
+
+```{r}
+c(is.vector(lsd_lm_coef1), is.vector(lsd_lm_resid1))
+```
+
+There are several other ways to access parts of a list. 
+Below are a few ways to extract the coefficients.
+
+1. `lsd_lm$coefficients`
+2. `lsd_lm[["coefficients"]]`
+3. `lsd_lm["coefficients"]`
+
+We could also use the number `1` in place of `"coefficients"` in (2) and (3).
+
+We've already used method 1 and assigned the result to `lsd_lm_coef1`. 
+Use the second and third methods, and assign the results to 
+`lsd_lm_coef2` and `lsd_lm_coef3`, respectively.
+Also display all three results below.
+
+```{r}
+lsd_lm_coef2 <- lsd_lm[["coefficients"]]
+lsd_lm_coef3 <- lsd_lm["coefficients"]
+
+lsd_lm_coef1
+lsd_lm_coef2
+lsd_lm_coef3
+```
+
+Do the resulting objects look different? Apply `is.vector` and `is.list` on each
+of the three objects.
+
+```{r}
+c(is.vector(lsd_lm_coef1), is.vector(lsd_lm_coef2), is.vector(lsd_lm_coef3))
+
+c(is.list(lsd_lm_coef1), is.list(lsd_lm_coef2), is.list(lsd_lm_coef3))
+```
+
+You should have discovered that methods 1 and 2 returned a vector, but method 3
+returned a list. The difference may seem subtle and not particularly important,
+but it will become much more important when we start to write our own functions.
+
+To see a summary of the contents associated with the `lm` object we can use 
+the `summary()` function.
+```{r}
+summary(lsd_lm)
+```
+
+We will now add the least squares regression line to the plot that we
+previously created.
+```{r}
+plot(lsd$concentration, lsd$mathscore, 
+     xlab="LSD Concentration", ylab="Math Score", 
+     col="purple", pch=17)
+
+abline(lsd_lm)
+```
+
+
+## Subsetting with logical vectors
+
+Subsetting with logical vectors is an essential skill. We'll practice this 
+using the `gapminder` data frame. First we use the `load()` function to 
+load the .Rdata file. You downloaded this file last class, but if you need it
+again it is available on D2L.
+
+```{r}
+load("gapminder.Rdata")
+str(gapminder)
+```
+
+Below are two examples that use logical subsetting.
+
+First, we compute the mean population of France for the years contained 
+in the data set.
+
+```{r}
+mean(gapminder$pop[gapminder$country == "France"])
+```
+
+Next, we extract the countries in the continent `Africa`. Since the countries
+are repeated for each of the  years, we'll use `unique` to list the
+countries only once.
+
+```{r}
+unique(gapminder$country[gapminder$continent == "Africa"])
+```
+
+We can combine conditions with the operators `&` and `|` which represent "and"
+and "or". For example, here's how to extract all the countries whose population
+was more than 150 million in the year 1992.
+
+```{r}
+gapminder$country[(gapminder$pop > 150000000) & (gapminder$year == 1992)]
+```
+
+Use these ideas to extract the population of all countries whose 
+life expectancy is more than 70 years for the year 1967.
+
+```{r}
+gapminder$pop[(gapminder$lifeExp>70) & (gapminder$year==1967)]
+```
+
+Another useful operator is `%in%`. 
+
+```{r}
+x <- 5:10
+y <- c(3, 5, 6, 9, 12, 15)
+
+x %in% y
+y %in% x
+```
+
+For example, here's how to compute the mean
+population for the United States, Mexico, and Canada during 1997.
+
+```{r}
+mean(gapminder$pop[gapminder$country %in% c("United States", "Mexico", "Canada") &
+                     gapminder$year == 1997])
+```
+
+Subsetting also can be used to change values of existing `R` objects 
+as in the following example.
+
+```{r}
+dd = data.frame(x = c("dog", "cat", "oink", "pig", "oink", "cat", "dog", "cat", "dog"), 
+                y = c("dog", "cat", "cat", "pig", "cow", "dog", "dog", "cat", "pig"),
+                stringsAsFactors = FALSE)
+dd
+
+dd$x[dd$x == "oink"] <- "pig"
+dd
+
+dim(dd)
+dd$same <- rep("no", dim(dd)[1])
+dd
+
+dd$same[dd$x == dd$y] <- "yes"
+dd
+```
+
+Next, we will add a variable called `G8` to the `gapminder` data frame, which
+will be equal to 1 or 0 depending on whether the country is in the G8 group of
+nations: France, Germany, Italy, the United Kingdom, Japan, the United States, 
+Canada, and Russia.
+
+First, create a variable called `G8` - all of whose values are 0. 
+This variable should be added to the data frame and can be done
+by creating the object `gapminder$G8`.
+
+```{r}
+gapminder$G8 <- rep(0, dim(gapminder)[1])
+```
+
+Now, set `G8` equal to 1 if the country is in the G8. 
+One way to do this is to give eight separate `R` commands, one for each of the
+G8 countries. Another method is to use `%in%` and complete the work in one line
+of `R` code.
+
+```{r}
+gapminder$G8[gapminder$country 
+             %in% c("France","Germany","Italy","United Kingdom",
+                    "Japan","United States","Canada","Russia")] <- 1
+```
+
+
+## Patterned data
+
+We'll plot the function $f(x) = \cos(x)$ for $x$ between $-2\pi$ and $2\pi$.
+
+First, create a vector `x` containing 1000 equally spaced values between 
+$-2\pi$ and $2\pi$ using the `seq` function. In `R` you can access $\pi$ by
+typing `pi`.
+
+```{r}
+x <- seq(from=-2*pi, to=2*pi, length.out = 1000)
+```
+
+Next, use the `plot` function to plot $f(x)$ defined above. The first argument
+to `plot` should be the vector `x` we just created. The second argument 
+should be `cos(x)`. 
+
+```{r}
+plot(x, cos(x))
+```
+
+The graphic is okay, but since we're plotting the graph of a function we 
+should connect the points rather than plotting each of the points. 
+Add the argument `type = "l"`.
+
+```{r}
+plot(x, cos(x), type="l", col = "blue")
+```
+
+The `rep` function replicates its first argument. 
+Important arguments include `length.out`, `times`, and `each`. This can be 
+very useful for creating vectors with respect to some pattern. Run the below
+chunk to investigate what happens as different arguments are specified.
+
+```{r}
+ltrs <-  c("a", "b", "q", "z")
+rep(ltrs, length.out = 9)
+rep(ltrs, each = 3)
+rep(ltrs, times = 3)
+rep(ltrs, times = c(3, 2, 4, 7))
+```
+
+
+

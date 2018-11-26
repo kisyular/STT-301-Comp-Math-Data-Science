@@ -1,0 +1,434 @@
+---
+title: "My first R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+[Google](www.google.com)
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+I want to make this *italics*.
+
+
+
+```{r}
+head(cars)
+plot(cars)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file).
+
+## R Markdown formatting notes:
+
+No formatting leads to plain text as expected.
+I just want a plain piece of text here.  
+
+End a line with two space to start a new paragraph.  
+
+*italics* an **bold**  
+let's try **bold** and also try to *italicize*
+
+```{r}
+head(mtcars)
+```
+```{r}
+plot(mtcars$mpg, mtcars$cyl)
+```
+The dollar sign let's R know that we're referring to a column.
+
+
+`code outside a chunk to display the code as is`
+`plot(mtcars$cyl, mtcars$mpg`)
+
+
+sub/superscript^2^~2~
+
+--strikethrough--
+
+endash: --, emdash: ---
+
+equation: $CPM(i) = counts(i)*10^{6}/\sum_jcounts(j)$
+
+equation block:
+$$RPKM(i) = \frac{counts(i)}{length(i)} * \frac{10^{6}}{\sum_jcounts(j)}$$
+
+> block quote
+
+# Header 1 {#anchor}
+## Header 2
+### Header 3
+#### Header 4
+##### Header 5
+###### Header 6
+
+# 
+## Next biggest
+### Not so big any more
+#### Reasonably sized
+
+
+<!--Text comment-->
+
+<www.rstudio.com>
+
+[RStudio](www.rstudio.com)
+
+Jump to [Header 1](#anchor)
+
+image:
+![Octocat](octocat.png)
+
+unordered list:  
+
+* item 1
+    + sub-item 1
+    + sub-item 2
+        - sub-sub-item 1
+* item 2
+
+ordered list:
+
+1. item 1
+2. item 2
+    i) sub-item 1
+      A. sub-sub-item 1
+
+| Right | Left | Default | Center |
+|------:|:-----|---------|:------:|
+|  12   |   12 |   12    |   12   |
+| 123   |  123 |   123   |   123  |
+| 1     |   1  |    1    |   1    |
+
+horizontal rule/slide break:
+
+
+
+`getwd` get you the current working directory
+```{r}
+?getwd
+getwd()
+```
+
+```{r}
+example(mean)
+```
+
+```{r}
+2:6
+```
+```{r}
+#?seq
+#seq is a functionthat produces sequences
+#seq(begin, end, by = by_how_much)
+seq(2 , 10, by=0.5)
+```
+
+```{r}
+#1:3
+#c(1:3, 1:3. 1:3, 1:3, 1:3)
+rep(1:3, each=5)
+```
+
+```{r}
+x <- c(2, 0, -1, 4, 10)
+#c(3, 5, 7) != 5
+#x > 3
+#x[x > 3]
+#c(2,4) %in% 1:3
+#idx <- c(2,5)
+#x[idx] <- c(-2, 9)
+#c(T, F, F, T, F)
+#x[c(T, F, F, T, F)]
+#x[c(1,4)]
+x %in% 2:5
+```
+
+```{r}
+a <- 'lung'
+b <- 'heart'
+#c(a, b)
+#rep(c(a, b), times=2)
+#c(a, b) %in% c('lung','liver')
+
+tis <- c(a, b, 'brain', 'kidney', 'colon')
+sys <- c('pulm', 'cardio', 'neuro', 'excr', 'diges')
+#tis
+#sys
+cbind(tis, sys)
+rbind(tis, sys)
+```
+
+```{r}
+x <- c(2, 0, -1, 4, 10)
+tis <- c(a, b, 'brain', 'kidney', 'colon')
+which(tis=='brain')
+which(tis!='brain')
+
+which.min(x)
+which.max(x)
+
+?all
+?any
+```
+
+```{r}
+?sample
+sample(x)
+```
+
+```{r}
+x <- c(2, 0, -1, 4, 10)
+y <- 3
+z <- 4:7
+idx <- c(2,5); x[idx]
+x[idx] <- c(-2, 9)
+
+v1 <- c(x, z); v2 <- y
+v1; v2; v3
+v1 + v2
+v1 - v2
+v1 * v2
+v1 / v2
+v3 <- v1 * v1; v3
+v4 <- (v1 + v2) / v3
+```
+
+```{r}
+sys; tis
+paste(sys, tis, sep = "_")
+```
+
+```{r}
+df <- data.frame(x = 1:3, y = c('a', 'b', 'c'))
+df
+
+View(df)
+
+head(df)
+
+nrow(df)
+
+ncol(df)
+
+dim(df)
+
+df$x
+df[,2]
+df[2,]
+df[2,2]
+```
+
+
+```{r}
+tis_df <- data.frame(tissue=tis,
+                     system=sys,
+                     index=1:5,
+                     stringsAsFactors = F)
+tis_df$tissue
+tis_df[['system']]
+
+View(df)
+nrow(df)
+ncol(df)
+dim(df)
+colnames(df)
+rownames(df)
+head(df)
+tail(df)
+
+tis_df[2,3]
+tis_df[2,'index']
+tis_df[1,]
+tis_df[3:5,]
+tis_df[,2]
+tis_df[,'system']
+```
+
+```{r}
+gse <- read_delim("sub.GSE69360.gene-logcpm.mat",
+                  delim = "\t")
+```
+
+```{r}
+
+```
+
+
+```{r}
+gse %>%
+    gather(2:5, key="Sample", value="Logcpm") %>%
+    separate(Sample, into=c("Source_Stage", "Tissue"), sep="_") %>%
+    separate(Source_Stage, into=c("Source", "Stage"), sep=1)
+```
+
+
+View(df)
+nrow(df)
+ncol(df)
+dim(df)
+head(df, 2)
+tail(df, 2)
+
+
+
+
+These are the bunch of commands to explore the data frame
+```{r}
+#view the whole thing in a separate window
+View(gse)
+
+#extract columns 2 & 3
+gse[,2:3]    #what ever you want
+
+gse[5:15,2:3]
+
+colnames(gse)
+
+gse[c(1,5:7,10),"AA_Colon"]
+
+summary(gse)
+```
+
+
+```{r}
+term <- 'qwerty'
+pos <- 15980
+
+if(term == 'start') {
+  flank_seq <- c(pos-1000, pos)
+} else if(term == 'end') {
+  flank_seq <- c(pos, pos+1000)
+} else {
+  flank_seq <- "nothing to report!"
+  cat(term, "neither start nor end! something wrong!\n")
+}
+
+flank_seq
+```
+
+```{r}
+term <- 'qwerty'
+pos <- 15980
+
+if(term == 'start') {
+  flank_seq <- c(pos-1000, pos)
+} else {
+  flank_seq <- c(pos, pos+1000)
+}
+
+if(term =='start' | term == 'end') {
+  cat("that seems like a valid entry!\n")
+} else {
+  cat("try one of start or end!\n")
+}
+
+if(pos > 10 & term == 'start') {
+  do_somehting2
+}
+
+flank_seq
+```
+
+
+head
+nrow
+View
+colnames
+
+log(x, base=n)
+
+take_log_base2or10 <- function(num, newbase) {
+    if(newbase == 2 | newbase == 10) {
+      log_num <- log(num, base = newbase)
+      return(log_num)
+    } else {
+      cat("base is neither 2 nor 10!\n")
+    }
+}
+
+take_log(15, 2)
+take_log(15, 10)
+take_log(15, 5)
+multiply(67, 0.2345)
+
+
+x <- 5
+y <- 3
+x+y
+'+'(x, y)
+
+
+[0-9a-zA-Z]
+[a-zA-Z]
+
+x <- "qwerty"
+gsub("^q", "asd", x)
+
+x <- "qwerty"
+gsub("[A-Z]", "asd", x)
+
+x <- "qwerTy"
+gsub("[A-Z]", "asd", x)
+
+#gsub(pattern, replacement, variable)
+
+x <- "qwer0y"
+gsub("r.y", "asd", x)
+
+x <- "qwer0yyyyy"
+gsub("y", "asd", x)
+gsub("y+", "asd", x)
+
+x <- c("yqwwerrrtyyyyy", "noysathe end")
+gsub("^y", "pop", x)
+y <- gsub("y$", "pop", x)
+
+x <- c("yqwwerrrtyyyyy", "noysathe end")
+grep("y", x)
+grep("^y", x)
+grep("y$", x)
+
+grepl("y", x)
+grepl("^y", x)
+grepl("d$", x)
+
+x[grepl("d$", x)]
+x[F, T]
+x[2]
+
+
+```{r}
+temp <- gse69360 %>%
+  filter((grepl("chr12", Chr)) & (Length > 10) & (Length < 100)) %>%
+  select(Geneid, matches("_")) %>%
+  rename(newgeneid = Geneid, chromosome = Chr) %>%
+```
+
+
+```{r}
+gse69360 %>%
+  transmute(kiloLength = (Length/1000), upperChr = toupper(Chr))
+```
+
+```{r}
+temp <- gse69360 %>%
+  filter(grepl("chrY", Chr)) %>%
+  arrange(Length)
+```
+
+
+
+
+
+
+
+
+---
+
+A footnote [^1]
+
+[^1]: Here's the footnote.

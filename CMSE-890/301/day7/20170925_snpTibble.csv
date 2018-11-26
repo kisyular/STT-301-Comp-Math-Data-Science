@@ -1,0 +1,7 @@
+genome, chromosome, position, ref, alt, gene
+mhg, 1, 1001, A, G, AGTZ
+mhg, 1, 20005, C, T, UIC17
+mhg, 1, 20010, C, T, UIC17
+mhg, 1, 40005, G, T, UIC18
+mhg, 2, 90010, G, A, IURT
+mhg, Z, 877, C, A, ?

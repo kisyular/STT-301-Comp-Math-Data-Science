@@ -1,0 +1,84 @@
+---
+title: "STT 301: Simulation and Confidence Intervals"
+author: "Shawn Santo"
+date: "October 29, 2018"
+output: html_document
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.path='Figs/', warning=FALSE, message=FALSE, dev = "png", comment = NA)
+```
+
+## Introduction
+
+Learning Objectives
+
+  - Simulation
+  - Confidence intervals for the population mean
+  
+*************************
+
+```{r}
+library(ggplot2)
+```
+
+### Confidence interval for the population mean
+
+A confidence interval for the population mean is given by the following formula provided certain assumptions hold.
+\[
+\bar{x} \pm z_{(1-\alpha)/2}\frac{\sigma}{\sqrt{n}}
+\]
+
+Assumptions:
+
+  1. random sample;
+  2. $\sigma$, the population standard deviation, is known;
+  3. sampling distribution of $\bar{x}$ is approximately Normally distributed (CLT result holds).
+
+### Computing the confidence interval
+
+Create a function that computes the lower and upper end points for a confidence interval for the population mean. Name the function `ci.mu`. The function should have two arguments: `x` a vector of data and `level` a desired confidence level. The function `ci.mu` should return a vector with the following elements: lower limit of the confidence interval, upper limit of the confidence interval, and the sample mean.
+
+Without loss of generality, we will generate and use data from the Standard Normal distribution. The "unkown" population mean that we are creating confidence intervals for has the value 0. We will set $\sigma = 1$.
+
+```{r }
+
+
+```
+
+Test your function to see if you get the identical result given below. Be sure to set the seed to the same value.
+
+```{r}
+# set.seed(321)
+# 
+# data <- rnorm(40, mean = 0, sd = 1)
+# 
+# ci.mu(x = data, level = 0.90)
+```
+
+### Repeated samples
+
+What does a $(1-\alpha)\%$ confidence interval really mean? In repeated samples, we would expect, on average, approximately $(1-\alpha)\%$ of the intervals to cover the true (unknown) population parameter. We will investigate if this is in fact the case via a simulation below.
+
+Write a function named `ci.sim` that has three arguments: `n` - the sample size, `reps` - the number of simulation replicates, and c.level - the confidence level. The function should do the following:
+
+  1. generate `n` times `reps` of random variables from the Standard Normal distribution and store the random variables in a `n` by `reps` matrix;
+  2. use the `apply` function in conjuction with the function `ci.mu` written above to obtain the interval end points and sample mean for each replicate;
+  3. transform the result into a data frame with an additional column indicating the replication number. The data frame should have appropriate column names. Hint: you will want to transpose the matrix prior to creating a data frame - to do this use `t`;
+  4. create and output a plot showing the confidence interval for each replication along with a point that corresponds to the sample mean for the given replication. Hint: use `geom_point` along with `geom_errorbar`;
+  5. compute and output the proportion of confidence intervals that cover the true population mean.
+
+```{r echo = FALSE}
+
+
+```
+
+Check your function.
+
+```{r fig.width=9}
+
+# set.seed(31)
+
+# ci.sim(n = 50, reps = 100, c.level = 0.90)
+```
+

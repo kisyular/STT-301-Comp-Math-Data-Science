@@ -1,0 +1,18 @@
+mkdir CMSE890Sec304      
+cd CMSE890Sec304/      
+mkdir Session2      
+cd Session2/      
+more /mnt/research/CMSE-bioinformatics/week1/GSE69360.gene-locations.txt      
+grep 'chr' /mnt/research/CMSE-bioinformatics/week1/GSE69360.gene-locations.txt | awk '{print $6}' |
+grep 'chr' /mnt/research/CMSE-bioinformatics/week1/GSE69360.gene-locations.txt | awk '{print $6}' |
+cut -c 1-15 /mnt/research/CMSE-bioinformatics/week1/GSE69360.gene-locations.txt | sort  
+cut -c 1-15 /mnt/research/CMSE-bioinformatics/week1/GSE69360.gene-locations.txt | sort > GSE69360.gene-locations_geneids.txt
+more /mnt/research/CMSE-bioinformatics/week1/GSE69360.gene-logcpm.mat      
+grep -v ',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0' /mnt/research/CMSE-bioinformatics/week1/GSE69360.gene-logcpm.mat    
+grep -v ',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0' /mnt/research/CMSE-bioinformatics/week1/GSE69360.gene-logcpm.mat > GSE69360.gene-logcpm_noZeros.mat  
+wc -l GSE69360.gene-logcpm_noZeros.mat     
+more /mnt/research/CMSE-bioinformatics/week3/fastq/SRR2012208_1.fastq      
+grep '@SRR2012208' /mnt/research/CMSE-bioinformatics/week3/fastq/SRR2012208_1.fastq | wc -l  
+ls -lah /mnt/research/CMSE-bioinformatics/week3/fastq/SRR2012208_1.fastq     
+ls -lah /mnt/research/CMSE-bioinformatics/week3/fastq/*.fastq.gz     
+history       

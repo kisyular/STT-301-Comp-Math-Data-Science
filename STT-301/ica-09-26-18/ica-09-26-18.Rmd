@@ -1,0 +1,102 @@
+---
+title: "STT 301: Loops, if-else, and functions"
+author: "Shawn Santo"
+date: "September 26, 2018"
+output: html_document
+---
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(comment = NA, tidy = F)
+```
+
+## Introduction
+
+---
+
+**Learning objectives:**
+
+  + For, while, repeat loops
+  + Writing functions
+
+---
+
+The Fibonacci sequence is the sequence $\{F_n\colon n \geq 1\}$ of numbers
+defined by $F_1 = 0, F_2 = 1$ and $F_n = F_{n-2} + F_{n-1}$ for $n\geq 3$. 
+For example, the first seven Fibonacci numbers are 
+$F_1 = 0, F_2 = 1$, $F_3 = 0+1 = 1$, $F_4 = 1 + 1 = 2$, 
+$F_5 = 1 + 2 = 3$, $F_6 = 2 + 3 = 5$, and $F_7 = 3 + 5 = 8$. 
+
+## For, while, repeat loops
+
+### Part a
+
+Write a function, `Fib1`, which uses a `for` loop. `Fib1` should take one 
+argument, `n`, and return the first `n` Fibonacci numbers. 
+For example, `Fib1(7)` should return the values `0, 1, 1, 2, 3, 5, 8`. 
+Test your function by checking the result of `Fib1(7)` and `Fib1(10)`.
+
+```{r}
+# Write Fib1 here...
+# Test it here...
+```
+
+Did you make sure your function would return the correct value(s) if 
+called with `Fib1(1)` or `Fib1(2)`? 
+
+### Part b
+
+Verify below that `Fib1(1)` and `Fib1(2)` return the correct values. 
+Modify your function if the values are not correct.
+
+```{r}
+# Verify/modify here...
+```
+
+### Part c
+
+Write a function called `Fib2` that does the exact same task as `Fib1`, 
+but uses a `while` loop as opposed to a `for` loop. 
+Test your function by checking the result of `Fib1(1)`, `Fib1(2)`, 
+`Fib1(7)`, and `Fib1(10)`.
+
+```{r}
+# Write Fib2 here...
+# Test Fib2 here...
+```
+
+### Part d
+
+Write a function called `Fib3` that does the exact same task as `Fib1`, 
+but uses a `repeat` loop as opposed to a `for` loop. 
+Test your function by checking the result of `Fib1(1)`, `Fib1(2)`, 
+`Fib1(5)`, and `Fib1(10)`.
+
+```{r}
+# Write Fib3 here...
+# Test Fib3 here...
+```
+
+## More loops
+
+Write a function called `find_cos_integer` which takes a value 
+$x$ between $-1$ and $1$ (inclusive) as an input, and it returns the smallest
+nonnegative integer $k$ satisfying the inequality $|\cos(k) - x| < 0.001$. 
+Here are a few examples:
+
+`> find_cos_integer(1)`    
+`[1] 0`  
+
+`> find_cos_integer(0.1)`  
+`[1] 7202`
+
+`> find_cos_integer(0.3)`  
+`[1] 49`
+
+Try to include code which stops and returns a message if the user specifies 
+an argument $x$ which is either less than $-1$ or greater than $1$. 
+Failure to do this may result in an infinite loop.
+
+```{r}
+# Write find_cos_integer here...
+# Test it on arguments 0.1, -0.3, 0.5, 0, 1
+```

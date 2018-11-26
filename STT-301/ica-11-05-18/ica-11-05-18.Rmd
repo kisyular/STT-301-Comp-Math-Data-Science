@@ -1,0 +1,146 @@
+---
+title: "STT 301: Logistic Regression"
+author: "Shawn Santo"
+date: "November 05, 2018"
+output: html_document
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.path='Figs/', warning=FALSE, message=FALSE, dev = "png", comment = NA)
+```
+
+### Required External Data: none
+### Required Packages: `faraway`, `tidyverse`, `MASS`
+
+### Learning Objectives
+
+  - Logistic Regression
+
+*************************
+
+Load (install if needed) the below packages.
+
+```{r}
+library(tidyverse)
+library(faraway)
+library(MASS)
+```
+
+## Part 1
+
+### Data analysis
+
+In January 1986, the NASA space shuttle Challenger exploded 73 seconds into its flight killing all seven crew members. An investigation was launched into the cause of the crash and attention focused on the rubber o-ring seals in the rocket boosters. At lower temperatures, rubber becomes more brittle and is a less effective sealant.
+
+In the 23 previous NASA shuttle missions for which data exists, some evidence of damage due to blow by and erosion was recorded on the o-rings. Each shuttle had two boosters, each with three o-rings. For each mission, we know the number of o-rings, out of six, showing some damage and the launch temperature.
+
+The data `orings` is in the `faraway` package. Let's load the data, convert it to a tibble, look at the data, and examine a plot of the temperature versus the proportion of damaged o-rings. 
+
+```{r}
+data(orings)
+orings <- as_tibble(orings)
+orings
+plot1 <- ggplot(data = orings, mapping = aes(x = temp, y = damage / 6)) + geom_point(color = "red", size = 2) + xlim(20, 85) + ylim(0, 1) +
+  labs(x = "temperature at time of launch", y = "proportion of o-rings damaged")
+plot1
+```
+
+*************************
+
+### Fitting a linear model
+
+Use the `lm` function to fit a linear model in R. Save the output as an object named `lm.orings`. You can use the `summary` function to get the details of the fitted model. The response should be the proportion of o-rings damaged and the single predictor should be the temperature at time of launch. Plot the data just as is above, but include the fitted regression line. Recall the `stat_smooth` function with ggplot.
+
+```{r}
+
+
+```
+
+Why does the model not seem to be a good fit?
+
+*************************
+
+### Some more data analysis
+
+Add a variable `failure` to the orings tibble. Each element of the vector `failure` should be 1 or 0 depending on if there was some o-ring failure or no o-ring failure. Save the new tibble as `orings2`. Create comparison box plots to examine the temperature with regards to these two variables.
+
+```{r}
+orings2 <- orings %>% mutate(failure = ifelse(damage > 0, 1, 0))
+
+plot2 <- ggplot(data = orings2, mapping = aes(x = factor(failure), y = temp)) + geom_boxplot(fill = "purple") +
+  labs(y = "temperature at time of launch", x = "some o-ring failure")
+plot2
+```
+
+Create a new plot of `failure` versus `temp` from the orings2 tibble.
+
+```{r}
+
+```
+
+*************************
+
+### Fitting logistic regression models
+
+Fit a logistic regression model using the `orings2` tibble. The response should be `failure` and the single predictor variable should be `temp`. Save the object as `lr.orings1`. Use the `summary` function to get details of the fitted model.
+
+```{r}
+lr.orings1 <- glm(failure ~ temp, data = orings2, family = binomial)
+
+summary(lr.orings1)
+```
+
+Use the same plot of `failure` versus `temp` from the orings2 tibble as you created above, but now add the fitted logistic regression model.
+
+```{r}
+
+```
+
+Fit another logistic regression model using the `orings` tibble. The response should be `cbind(damage, 6 - damage)` and the single predictor variable should again be `temp`. Save the object as `lr.orings2`.  Use the `summary` function to get details of the fitted model.
+
+```{r}
+
+```
+
+We will now extract the coefficients from `lr.orings2` and create a function to plot the estimated regression function.
+
+```{r}
+
+```
+
+*************************
+
+### Prediction and inference
+
+At the time of the Challenger launch in January 1986, the temperature was 31°F. For each of the logistic regression models, predict the response for the temperature value of 31 degrees. You can use the `predict.glm` function. Be sure to look at the help for how to properly input the value 31.
+
+```{r}
+
+```
+
+What do you notice about the prediction with regards to the scope of the models?
+
+**When the Challenger shuttle exploded in January of 1986 all six of the o-rings failed. The failure of the o-rings was eventually deemed to be the cause of the explosion.**
+
+From the `MASS` package use the `confint` function to compute 99% confidence intervals for the parameters of the fitted logistic regression models: `lr.orings1` and `lr.orings2`.
+
+```{r }
+
+```
+
+*************************
+
+## Part 2
+
+### Predictit
+
+Go to [https://www.predictit.org/](https://www.predictit.org/). Select a 
+market and download the 90-day price history.
+Create a logistic regression model to try and predict the next day's 
+price direction: up or down. You can try the price change for different
+lag times or volume as predictors.
+
+```{r}
+
+```
+

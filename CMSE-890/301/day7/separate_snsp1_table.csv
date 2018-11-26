@@ -1,0 +1,7 @@
+Genome,Chromosome,Position,Ref,Alt,Gene
+MMA,1,100,A,G,HGT
+MMA,2,202,G,T,IOZ
+MMA,Chr12,3000,G,A,NA
+MMA,MT,564,C,A,NA
+MMA,Unplaced,25,T,C,FOR4
+MMA,Z,345,T,A,CYC

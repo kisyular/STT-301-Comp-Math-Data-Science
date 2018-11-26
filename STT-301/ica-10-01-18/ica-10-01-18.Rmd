@@ -1,0 +1,328 @@
+---
+title: "STT 301: Variable scope and code efficiency"
+author: "Shawn Santo"
+date: "October 01, 2018"
+output: html_document
+---
+
+```{r global_options, echo = FALSE}
+knitr::opts_chunk$set(comment = NA, tidy = TRUE)
+```
+
+## Introduction
+
+---
+
+**Learning objectives:**
+
+  - Variable scope
+    - accessing variables outside of a function
+    - local variables
+    - sub functions
+  - Programming efficiently
+
+---
+
+
+## Scoping
+
+Clear your workspace with the following R command. 
+It is always a good idea to do this when starting a new 
+project or assignment in R or RStudio.
+
+```{r}
+rm(list=ls())
+```
+
+Remember that `ls` lists the objects in the R workspace. Run the below code line-by-line using the keystrokes `Ctrl + Enter` for Windows 
+or `Cmd + Enter` for Mac. 
+Your cursor must be on the the line of code you wish to have executed.
+
+```{r}
+ls()
+x <- 1:10
+y <- x+3
+ls()
+rm(y)
+ls()
+rm(x)
+ls()
+```
+
+Currently, the R workspace is empty. 
+We will create a function, `f`, which has two arguments, `x` and `y`, and which also creates an object `out` that is returned. 
+
+```{r}
+f <- function(x = 3, y = 2){
+  out <-  x + y
+  return(out)
+}
+f()
+```
+
+What do you expect `ls()` to return now?
+
+```{r}
+# Check the objects in the workspace...
+```
+
+Were you surprised that the only object in the workspace is the function `f`? Neither the arguments `x`, `y` nor the object `out` created in the body of the function is part of the workspace. 
+
+Next, let's create an object called `out` in the workspace. 
+
+```{r}
+out <- 17
+ls()
+```
+
+If we execute the function `f`, do you think that `out` will be changed from its current value of `17` to the value returned by the function? Make sure you understand why.
+
+```{r}
+# Execute f() and see the value of out
+```
+
+Let's redefine `f` so that it only has one argument, `y`.
+
+```{r}
+f <- function(y = 2){
+  out <- x+y
+  return(out)
+}
+```
+
+If you just type `f()` in the console, R will give an error message, since there is no value of `x` specified. But what happens if `x` is defined in the workspace - outside of the function. That is, what would you expect to happen with the following R code, which for now is not evaluated, since the code chunk specifies `eval = FALSE`.
+
+```{r, eval = FALSE}
+x <- 20
+f()
+```
+
+Enter the R code from above and have it evaluated.
+
+```{r}
+
+```
+
+You should have seen that R found `x` in the workspace and used this value inside the function. It's not a good idea to have functions depend on objects outside of the function as is done here.
+
+Below is an interesting example of R's scoping rules in action. We will define a function inside another function.
+
+```{r}
+make.power <- function(n){
+  out <- function(x){
+    x ^ n
+  }
+  return(out)
+}
+```
+
+The function `make.power` returns another function. Let's see it in action.
+
+```{r}
+square <- make.power(2)
+cube <- make.power(3)
+square(5)
+cube(5)
+```
+
+Now let's look at the R workspace.
+
+```{r}
+# Show objects in the workspace here...
+```
+
+R uses [lexical scoping](https://en.wikipedia.org/wiki/Scope_(computer_science)#Lexical_scope_vs._dynamic_scope). Lexical scoping turns out to be 
+particularly useful for simplifying statistical computations. Understanding
+this is beyond the scope of this course, but it is good to at least know it
+exists.
+
+## Coding Efficiency
+
+Consider a stochastic process in two dimensions which, if currently at the point $(x,y)$, moves to one of $(x+1, y)$, $(x-1, y)$, $(x, y+1)$, or $(x, y-1)$ with equal probability for each of the four moves. The process is called a simple symmetric random walk in two dimensions. For simplicity, we'll assume that the random walk starts at $(0,0)$. If you like a more physical description, imagine a person who, each minute, steps forward, backward, to the right, or to the left, with equal probabilities for each of these moves. 
+
+Here, for example, is the trajectory of the first 500 steps of a simple symmetric random walk.
+
+```{r, echo = FALSE}
+library(ggplot2)
+
+rand_walk_1 <- function(n) {
+    xpos <- 0
+    ypos <- 0
+    move_horiz <-  c(TRUE, FALSE)
+    move_directions <-  c(1, -1)
+    for(i in 2:n)
+      if (sample(move_horiz, 1)) {
+        xpos[i] <- xpos[i-1] + sample(move_directions, 1)
+        ypos[i] <- ypos[i-1]
+      }
+    else {
+      xpos[i] <- xpos[i-1]
+      ypos[i] <- ypos[i-1] + sample(move_directions, 1)
+    }
+    return(data.frame(xpos = xpos, ypos = ypos))
+}
+
+set.seed(11)
+rw1 <- rand_walk_1(n = 500)
+ggplot(data = rw1, aes(x = xpos, y = ypos)) + 
+  geom_path() +
+  geom_point(data = data.frame(x = 0, y = 0), aes(x = x, y = y))
+```
+
+Random walks in one, two, three, and higher dimensions are central objects in probability. There are many beautiful results about random walks, for example, Polya's Theorem, which states that the simple symmetric random walk in one and two dimensions will, with probability one, returns to its starting point, but in higher dimensions there is a positive probability that the random walk will not return to its starting point. In addition to such analytic results, it is useful to simulate random walks. That is the focus below.
+
+Below is an R function which simulates the first `n` steps of a simple random walk in two dimensions. The function returns a data frame with one column giving the $x$ coordinates and one column giving the $y$ coordinates of the walk. You may not be familiar with the `sample` function. Its first argument is a "population" vector of values from which to choose. Its second argument is the number of values to choose. Other arguments can specify whether sampling is performed with or without (the default) replacement, and can specify unequal sampling probabilities for each element of the population vector.
+
+```{r}
+rand_walk_1 <- function(n) {
+    ##Start at (0,0)
+    xpos <- 0
+    ypos <- 0
+    ##Two vectors to sample from. One to determine whether the move 
+    ##is horizontal or vertical. Another to determine whether the 
+    ##move is +1 or -1 in the specified direction
+    move_horiz <-  c(TRUE, FALSE)
+    move_directions <- c(1, -1)
+    ##The loop which computes the moves
+    for(i in 2:n){
+      ##Check whether to move horizontally or vertically
+      if (sample(move_horiz, 1)) {
+        ##Make the move, either +1 or -1
+        xpos[i] <- xpos[i-1] + sample(move_directions, 1)
+        ypos[i] <- ypos[i-1]
+      ##If not horizontal, then vertical
+      } else {
+        xpos[i] <- xpos[i-1]
+        ypos[i] <- ypos[i-1] + sample(move_directions, 1)
+      }
+    }  
+    ##return the full trajectory
+    return(data.frame(xpos = xpos, ypos = ypos))
+}
+```
+
+Here we look at the first five positions of a simulated random walk and then plot the moves for a 500 step walk. 
+
+```{r}
+rand_walk_1(5)
+rw500 <- rand_walk_1(500)
+ggplot(data = rw500, aes(x = xpos, y = ypos)) + 
+  geom_path() + 
+  geom_point(data = data.frame(x = 0, y = 0), aes(x = x, y = y))
+```
+
+Looking at `rand_walk_1` you should immediately see a source of substantial inefficiency. Rather than allocating all `n` elements of `xpos` and `ypos` initially, the function initializes each with one element, and then enlarges the vectors each pass through the `for` loop. 
+
+For comparison, we'll measure how long it takes `rand_walk_1` to generate 1000000 steps of the random walk. The argument `cache = TRUE` is turned on. The first time through this will take several seconds, but subsequent times it will be much quicker.
+
+```{r, cache = TRUE}
+system.time(rand_walk_1(1000000))
+```
+
+Rewrite `rand_walk_1` by allocating all `n` elements of `xpos` and `ypos` when these objects are created in the function. Name the resulting function `rand_walk_2`.
+
+```{r}
+# Create rand_walk_2 here...
+```
+
+Use the R built-in function `system.time` to time `rand_walk_2` for `n = 1000000`. How much of a speedup did you see? It should be a lot faster, but you may want to still keep `cache = TRUE` to save time in subsequent runs through the document.
+
+
+```{r}
+# Time rand_walk_2 here
+```
+
+Another place to look for a speedup is vectorization. Can we use vector operations instead of the "one at a time" looping construct? First, instead of calling `sample` twice (once for horizontal versus vertical, and once for +1 versus -1) each time through the loop, we can call `sample` twice outside the loop to generate all `n-1` horizontal versus vertical and +1 versus -1 choices, and use the resulting choices inside the loop. This change has been done for vertical versus horizontal in `rand_walk_3` below.
+
+```{r}
+rand_walk_3 <- function(n) {
+    xpos <- numeric(n)
+    ypos <- numeric(n)
+    ##Two vectors to sample from. One to determine whether the move 
+    ##is horizontal or vertical. Another to determine whether the 
+    ##move is +1 or -1 in the specified direction
+    move_horiz <- sample(c(TRUE, FALSE), n-1, replace = TRUE)
+    move_directions <- c(-1,1)
+    ##The loop which computes the moves
+    for(i in 2:n){
+      ##Check whether to move horizontally or vertically
+      if (move_horiz[i-1]) {
+        ##Make the move, either +1 or -1
+        xpos[i] <- xpos[i-1] + sample(move_directions, 1)
+        ypos[i] <- ypos[i-1]
+      } ##If not horizontal, then vertical
+    else {
+      xpos[i] <- xpos[i-1]
+      ypos[i] <- ypos[i-1] + sample(move_directions, 1)
+    }
+    }  
+    ##return the full trajectory
+    return(data.frame(xpos = xpos, ypos = ypos))
+  }
+```
+
+
+```{r}
+system.time(rand_walk_3(1000000))
+```
+
+We see a substantial speedup. 
+
+Improve the speed even more by making a similar change for the choice of +1 or -1 moves. Name the resulting function `rand_walk_4`. Use `system.time` to time this function. How much improvement do you see?
+
+```{r}
+# Create rand_walk_4 here and time it for n=1000000
+```
+
+We can eliminate the `for` loop altogether by using `ifelse` and `cumsum`. First, some brief examples of these functions in action in a simpler setting.
+
+```{r}
+cumsum(1:10)
+ifelse(TRUE, "a", "b")
+ifelse(c(TRUE, TRUE, FALSE, FALSE, TRUE), "a", "b")
+```
+
+Here is the next version of the function.
+
+```{r}
+rand_walk_5 <- function(n){
+  move_horiz <- sample(c(TRUE, FALSE), n-1, replace = TRUE)
+  move_directions <- sample(c(-1, 1), n-1, replace = TRUE)
+  xpos <- c(0, cumsum(ifelse(move_horiz, move_directions, 0)))
+  ypos <- c(0, cumsum(ifelse(move_horiz, 0, move_directions)))
+  return(data.frame(xpos = xpos, ypos = ypos))
+}
+```
+
+Again, use `system.time` to compare this version to the previous versions of the function. Is there a substantial speedup?
+
+```{r}
+# Time rand_walk_5 here for n=1000000
+```
+
+There are four types of moves:
+
+1.  horizontal, -1
+2.  horizontal, +1
+3.  vertical, -1
+4.  vertical, +1
+
+Instead of separately sampling for horizontal versus vertical and +1 versus -1, we could take one sample from the numbers 1, 2, 3, 4, and have that result specify the move fully. Here's the resulting function.
+
+```{r}
+rand_walk_6 <- function(n){
+  move_type <- sample(1:4, n-1, replace = TRUE)
+  xmoves <- c(-1, 1, 0, 0)
+  ymoves <- c(0, 0, -1, 1)
+  xpos <-  c(0, cumsum(xmoves[move_type]))
+  ypos <-  c(0, cumsum(ymoves[move_type]))
+  return(data.frame(xpos = xpos, ypos = ypos))
+}
+```
+
+Again, use `system.time` to compare this version to the previous versions of the function. Is there a substantial speedup?
+
+```{r}
+# Time rand_walk_6 here for n=1000000
+```
+

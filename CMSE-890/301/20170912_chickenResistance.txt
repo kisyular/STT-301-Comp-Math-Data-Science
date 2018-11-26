@@ -1,0 +1,13 @@
+Wingband, subspecies, gender, predictedResistance, actualResistance
+X001, RJF, M, 50, 65
+X002, RJF, F, 55, 65
+X003, RIR, F, 30, 25
+X004, RIR, M, 15, 15
+X005, WLH, M, 70, 72
+X006, WLH, F, 75, 80
+X007, WLH, F, 56, 50
+X008, WLH, M, 40, ?
+X009, WLH, M, 90, 80
+X010, WLH, M, 87, 88
+X011, WLH, F, 50, 55
+X012, WLH, M, 50, 90

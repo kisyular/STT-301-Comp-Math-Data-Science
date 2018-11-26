@@ -1,0 +1,330 @@
+---
+title: "STT 301 Homework Assignment 1"
+author: "Rellika Kisyula"
+date: "September 10, 2018"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+opts_chunk$set(comment = NA)
+```
+
+
+***********************
+
+### Question 1 (3 points)
+
+This question focuses on some basic manipulations of vectors in R.
+
+#### Part a (1 point)
+
+Create four vectors in R: one called `nums` which contains the integers 
+from 5 through 14; one called `charnums` which contains character representations
+of the numbers 1 through 4, namely, "1", "2", "3", "4"; one called 
+`mixed` which contains the same values as in `charnums`, but which also 
+contains the letters "a" and "b"; and one called `bool` which contains the
+logical values TRUE, TRUE, TRUE, FALSE, FALSE, TRUE.
+
+#### Part b (1 point)
+```{r}
+
+# Vector nums contains the integers from 5 through 14
+nums <- c(seq(from=5, to=14, by=1))
+nums
+
+# Vector charnums contains the characters "1", "2", "3", "4"
+charnums <- c("1", "2", "3", "4")
+charnums
+
+# Vector mixed contains the characters "1", "2", "3", "4", "a", "b"
+mixed <- c("1", "2", "3", "4", "a", "b")
+mixed
+
+# Vector mixed contains the boolean values
+bool <- c(TRUE, TRUE, TRUE, FALSE, FALSE, TRUE)
+bool
+```
+  i. Convert `nums` to character. 
+```{r}
+# convert vector nums to character
+nums_to_chars <- as.character(nums)
+nums_to_chars
+```
+  ii. Convert `charnums` to numeric.
+```{r}
+# convert vector charnums to numeric
+charnums_to_nums <- as.numeric(charnums)
+charnums_to_nums
+``` 
+      
+  iii. Investigate what happens when you convert `mixed` to numeric.
+```{r}
+# convert vector nums to character
+mixed_to_nums <- as.numeric(mixed)
+mixed_to_nums
+# When I tried to coerce the all the elements in vector to numeric the second two elements could not be converted to numeric hence it returned `NAs`
+```
+
+  iv. Investigate what happens when you covert `bool` to character and then
+      when you convert the character result of `bool` to numeric.
+```{r}
+# Convert bool vector into characters
+bool_to_char <- as.character(bool)
+bool_to_char
+
+# convert back the bool-characters to numeric
+bool_to_char_numeric <- as.numeric(bool_to_char)
+bool_to_char_numeric
+# When I tried to convert the `c("TRUE"  "TRUE"  "TRUE"  "FALSE" "FALSE" "TRUE")` it returned `NAs`
+```
+Comment on each of these conversions below the `R` chunk.
+
+#### Part c (1 point)
+
+  i. Extract the first element of `bool`.
+```{r}
+bool[1]
+```
+
+  ii. Extract the last element of `nums.` You should give
+      code which would work regardless of the number of elements
+      in `nums`.
+```{r}
+nums[length(nums)]
+```
+
+  iii. Extract all but the first element of `nums.`
+```{r}
+nums[2:length(nums)]
+```
+
+  iv. Extract all but the first two and last two elements of
+  `nums.`Again, give code that would work regardless of how many
+  elements `nums` contains.
+```{r}
+nums[3:length(nums)-2]
+```
+  
+***********************
+
+### Question 2 (4 points)
+
+For this question you will work with data from the 2016-2017 NBA season.
+The `R` chunk below gives the code to read in the data. Use the `nba` data frame
+for the questions that follow. If you are unfamiliar with basketball terminology,
+most of the definitions for the variables can be found at  [Basketball Reference](https://www.basketball-reference.com/about/glossary.html).
+
+The first time you knit the .Rmd file it will be slow. The chunk option
+`cache=TRUE` will speed up the knit time after the initial knit.
+
+```{r cache=TRUE}
+# read in the data
+nba_raw <- read.csv("http://users.stat.ufl.edu/~winner/data/nba_player_201617.csv",
+                    stringsAsFactors = FALSE)
+# remove the last column
+nba <- nba_raw[, -31]
+```
+
+#### Part a (1 point)
+
+Create a data frame containing all the variables
+for a player of your choice. Save the data frame using the
+player's last name. You may want to use the `subset` function.
+
+```{r}
+# find Players]
+#unique(nba$Player )
+```
+
+
+```{r}
+james <-  nba[nba$Player =="LeBron James",]
+str(james)
+```
+#### Part b (2 points)
+
+Compute the mean, standard deviation, and median for any three variables
+corresponding to the player you selected in the previous part. To extract a
+single variable you can use `[ , ]` or `$`. For example, if my data frame was
+`westbrook`, `westbrook$PTS` would provide me the points vector from the
+`westbrook` data frame.
+
+**Mean, Median, Standard Deviation of Age**
+```{r}
+# mean age of Lebron James is:
+mean(james$Age, na.rm = T)
+
+# median age of Lebron James is:
+median(james$Age, na.rm = T)
+
+# standard deviation age of Lebron James is:
+sd(james$Age, na.rm = T)
+```
+
+**Mean, Median, Standard Deviation of Field Goal Attempts (FGA)**
+```{r}
+# mean FGA of Lebron James is:
+mean(james$FGA, na.rm = T)
+
+# median FGA of Lebron James is:
+median(james$FGA, na.rm = T)
+
+# standard deviation FGA of Lebron James is:
+sd(james$FGA, na.rm = T)
+```
+
+**Mean, Median, Standard Deviation of Free Throws (FT)**
+```{r}
+# mean FT of Lebron James is:
+mean(james$FT, na.rm = T)
+
+# median FT of Lebron James is:
+median(james$FT, na.rm = T)
+
+# standard deviation FT of Lebron James is:
+sd(james$FT, na.rm = T)
+```
+
+#### Part c (1 point)
+
+Compute the correlation between `Minutes` and `PTS` for the player you selected,
+
+```{r}
+# The correlation between Minutes and PTS for Lebron 
+cor(x=james$Minutes, y=james$PTS)
+```
+and plot the two variables. `Minutes` should be on the x-axis, and `PTS`
+should be on the y-axis. If you want to tidy your plot a bit include
+`xlab = "Minutes", ylab = "Points"` inside the plot function. Look at the help
+if you want to see how to change colors or points.
+
+```{r}
+# plot the two variables. Minutes and PTS
+plot(james$Minutes, james$PTS, lwd=5, col="magenta1",
+     main = "Comparison of Lebron Minutes vs PTS",
+     xlab = "Minutes",
+     ylab = "PTS")
+```
+
+
+***********************
+
+### Question 3 (3 points)
+
+For this question you will work with the `nba` data frame created in question 2.
+
+Select two players. For each player, compute their field goal percentage and 
+effective field goal percentage for all their games played. Use at least two
+descriptive statistics to determine which player had the better field 
+goal percentage, and which player had the better effective field goal 
+percentage for the 2016-2017 NBA season. Your answer should include 
+an explanation.
+
+Field Goal Percentage; the formula is `FG / FGA`.
+
+Effective Field Goal Percentage; the formula is `(FG + 0.5 * X3P) / FGA`. This 
+statistic adjusts for the fact that a 3-point field goal is worth one more 
+point than a 2-point field goal. For example, suppose Player A goes 4 for 10 
+with 2 threes, while Player B goes 5 for 10 with 0 threes. Each player would 
+have 10 points from field goals, and each would have the same effective field 
+goal percentage (50%).
+
+**(a) Get Kevin and James subset data**
+```{r}
+# Player 1: Lebron James
+# Player 2: Kelvin Durant
+james = nba[nba$Player =="LeBron James",]
+durant = nba[nba$Player =="Kevin Durant",]
+```
+
+**(b) Find James and Kevin field goal percentage**
+```{r}
+# James Field Goal Percentage
+james_field_goal_per <- james$FG/james$FGA
+james_field_goal_per
+
+# Durant Field Goal Percentage
+durant_field_goal_per <- durant$FG/durant$FGA
+durant_field_goal_per
+```
+
+**(c) Find James and Kevin effective field goal percentage**
+
+```{r}
+james_eff_fgp <- (james$FG + 0.5 * james$X3P)/james$FGA
+james_eff_fgp
+
+durant_eff_fgp <- (durant$FG + 0.5 * durant$X3P)/durant$FGA
+durant_eff_fgp
+```
+
+**(d) Determine which player had better field goal percentage**
+```{r}
+
+# Get Lebron James mean of the FGP
+jmean_fgp <-  mean(james_field_goal_per, na.rm = TRUE)
+jmean_fgp <- 
+# Get Lebron James median of the FGP
+jmedian_fgp <- median(james_field_goal_per, na.rm = TRUE)
+
+# Get Kevin Durant mean of the FGP
+dmean_fgp <- mean(durant_field_goal_per, na.rm = TRUE)
+dmean_fgp
+# Get Kevin Durant median of the FGP
+dmedian_fgp <- median(durant_field_goal_per, na.rm = TRUE)
+dmedian_fgp
+```
+
+```{r}
+# Compare the results
+jmean_fgp > dmean_fgp
+jmedian_fgp > dmedian_fgp
+```
+***********************
+**Ans: ** *It seems that Lebron James had a higher average field goal percentage of 0.5528325 than Kevin Durant who has 0.5339634. However, in terms of median field goal percentage, Durant scored higher than Lebron*
+
+***********************
+
+**(d) Determine which player had better effective field goal percentage**
+```{r}
+
+# Print Lebron James mean of the EFGP
+jmean_eff_fgp <- mean(james_eff_fgp, na.rm = TRUE)
+jmean_eff_fgp
+# Print Lebron James median of the EFGP
+jmedian_eff_fgp <- median(james_eff_fgp, na.rm = TRUE)
+jmedian_eff_fgp 
+
+# Print Kevin Durant mean of the EFGP
+dmean_eff_fgp <- mean(durant_eff_fgp, na.rm = TRUE)
+dmean_eff_fgp
+# Print Kevin Durant median of the EFGP
+dmedian_eff_fgp <- median(durant_eff_fgp, na.rm = TRUE)
+dmedian_eff_fgp
+```
+
+```{r}
+# Compare the results
+jmean_eff_fgp > dmean_eff_fgp
+jmedian_eff_fgp > dmedian_eff_fgp
+
+```
+***********************
+**Ans** *It seems that Lebron James had a higher average effective field goal percentage of 0.596974 than Kevin Durant who has 0.5911814. However, in terms of median field goal percentage, Durant scored higher than Lebron*
+
+***********************
+
+### Student Feedback
+
+This part is optional. It will be available on all assignments. 
+Feel free to answer on all, some, or none.
+
+1. How is the course going for you in terms of pace and/or difficulty level?
+
+2. Do you have any concerns or suggestions?
+
+3. Please provide any other comments you may have.
+
+***********************

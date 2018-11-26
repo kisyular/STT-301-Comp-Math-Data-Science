@@ -1,0 +1,212 @@
+---
+title: "STT 301: dplyr"
+author: "Rellika Kisyula"
+date: "October 22, 2018"
+output: html_document
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.path='Figs/', warning=FALSE, message=FALSE, dev = "png", comment = NA)
+```
+
+## Introduction
+
+Learning Objectives
+
+  - `dplyr` package
+    - `filter()`
+    - `arrange()`
+    - `select()`
+    - `mutate()`
+    - `summarize()`
+    - `group_by()`
+
+This document is adapted from the introductory `dplyr` vignette, 
+which is available at 
+https://cran.r-project.org/web/packages/dplyr/vignettes/introduction.html.
+
+We will use the data frame `flights` which is included in the `nycflights13`
+package. Load both the `dplyr` package and the `nycflights13` package. If you
+haven't yet installed one or both of these packages, you'll have to do that 
+first. In your console window type `install.packages("dplyr")` and `install.packages("nycflights13")` if needed.
+
+Now, load the libraries.
+
+```{r, message = FALSE}
+library(dplyr)
+library(nycflights13)
+```
+
+*************************
+
+## `flights`
+
+First let's look at the data frame `flights`. Type `?flights` in your console to see the variables along with a brief description. The below code would be a bad idea if `flights` were an ordinary data frame, but it is a `tbl_df` object which has more intelligent display options. 
+Never show/print a large data frame in your R Markdown file.
+
+```{r}
+flights
+```
+
+*************************
+
+## `print` and `glimpse`
+
+What if we want to see more (or less) than 10 rows of `flights` or want to
+see all the variables? To specify the number of rows displayed we can use a
+print statement.
+
+```{r}
+print(flights, n = 20)
+```
+
+To see all the variables, use `glimpse`.
+
+```{r}
+glimpse(flights)
+```
+
+*************************
+
+## `filter`, `slice`, and `arrange`
+
+The `filter` function filters rows based on specified criteria. It is similar
+to the `subset` function in base R. For example, here we select flights
+from March which had Detroit Metro Airport as their destination.
+
+```{r}
+filter(flights, month == 3 & dest == "DTW")
+```
+
+**How would you return flights from January which have destination either Detroit Metro (DTW) or Chicago O'Hare (ORD)?**
+
+```{r}
+filter(flights, month == 1 & dest %in% c("DTW", "ORD"))
+```
+
+The `slice` function selects specified rows. To select the first, third,
+seventh, and twentieth rows use
+
+```{r}
+slice(flights, c(1, 3, 7, 20))
+```
+
+The `arrange` function reorders rows. For example, here we order 
+the data set first by arrival time and then by carrier.
+
+```{r}
+arrange(flights, arr_time, carrier)
+```
+
+**How would you arrange flights by distance and then by departure delay, with the sorting being in descending order in both cases? (You'll find the `desc` function useful.)**
+
+```{r}
+arrange(flights, desc(distance), desc(dep_delay))
+```
+
+
+*************************
+
+## `select`, `mutate`, and `summarize`
+
+The `select`, `mutate`, and `summarize` functions work with columns. To choose
+a subset of the existing columns, use `select`. It is also possible to rename variables when using `select`. Here are two examples.
+
+```{r}
+select(flights, month, origin, dest)
+select(flights, month, origin, destination = dest)
+```
+
+Columns to be selected can also be specified using `start:end` to specify all columns from the column named `start` to the column named `end`. 
+In addition, a minus sign before the specified columns indicates that all except those columns should be selected. 
+
+**Use select to return a tibble with the variables representing departure time, departure delay, arrival time, arrival delay, origin, and destination.**
+
+```{r}
+select(flights, dep_time, dep_delay, arr_time, arr_delay, origin, dest)
+```
+
+The `mutate` function provides a simple way to create new columns which are functions of existing columns. 
+
+```{r}
+glimpse(mutate(flights,
+  gain = arr_delay - dep_delay,
+  speed = distance / air_time * 60))
+```
+
+**Create two new columns, one which has the total gain as above, and another which has the gain per hour, i.e, the gain divided by the air time in hours.**
+
+```{r}
+# Answer here...
+```
+
+The `summarize` function returns a function of one or more columns. 
+
+```{r}
+summarize(flights,
+  mean_dep_delay = mean(dep_delay, na.rm = TRUE), 
+  mean_arr_delay = mean(arr_delay, na.rm = TRUE))
+```
+
+*************************
+
+## `group_by` and `%>%`
+
+Grouping operations adds substantially to the power of the `dplyr` functions. 
+We will focus on using `summarize` with grouping, but grouping also can be 
+used with other functions. (This is equivalent to using `tapply`, but the syntax 
+and power are much better.) Often we apply several functions in order. The 
+piping operator, `%>%`, improves both readability and intuitiveness of these 
+more complex operations.
+
+Here are three different ways to compute the number of flights, 
+the mean distance of flights, and the mean arrival delay of flights, 
+for each month of the year. In the first, we create an intermediate data frame 
+with grouping. In the second, we nest functions. 
+In the third (this is the best option/style), we use the pipe operator.
+
+```{r}
+flights_by_month <- group_by(flights, month)
+
+summarize(flights_by_month, 
+          number = n(), 
+          mean_distance = mean(distance, na.rm = TRUE), 
+          mean_arrival_delay = mean(arr_delay, na.rm = TRUE))
+
+summarize(group_by(flights, month), 
+          number = n(), 
+          mean_distance = mean(distance, na.rm = TRUE), 
+          mean_arrival_delay = mean(arr_delay, na.rm = TRUE))
+
+group_by(flights, month) %>% 
+  summarize(number = n(), 
+            mean_distance = mean(distance, na.rm = TRUE), 
+            mean_arrival_delay = mean(arr_delay, na.rm = TRUE))
+```
+
+We can even pipe results into the `ggplot` function to produce a scatter plot.
+
+```{r}
+# Pipe the results directly into ggplot
+library(ggplot2)
+
+group_by(flights, month) %>% 
+  summarize(number = n(), 
+            mean_distance = mean(distance, na.rm = TRUE), 
+            mean_arrival_delay = mean(arr_delay, na.rm = TRUE)) %>% 
+  ggplot(data = ., aes(x = month, y = mean_arrival_delay)) + geom_point()
+
+# Save the results in "delays" and then use ggplot on delays
+delays <- group_by(flights, month) %>% 
+  summarize(number = n(), 
+            mean_distance = mean(distance, na.rm = TRUE), 
+            mean_arrival_delay = mean(arr_delay, na.rm = TRUE))
+
+ggplot(data = delays, aes(x = month, y = mean_arrival_delay)) + geom_point()
+```
+
+**Create a data frame which gives the number of flights and the mean arrival delay for flights on the carrier UA (United Airlines) whose destination is O'Hare Airport (ORD), with the number of flights and mean arrival delay calculated separately for flights out of each of the `origin` airports. (Hint: You'll probably want to use `filter` first to get the UA flights whose destination is ORD, then group by the originating airport, then calculate the statistics requested.)**
+
+```{r}
+# Answer here...
+```

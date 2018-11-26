@@ -1,0 +1,142 @@
+---
+title: "STT 301: K-nearest neighbors"
+author: "Rellika Kisyula"
+date: "November 07, 2018"
+output: html_document
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.path='Figs/', warning=FALSE, message=FALSE, dev = "png", comment = NA)
+```
+
+### Required External Data: none
+### Required Packages: `class`, `ISLR`, `tidyverse`
+
+### Learning Objectives
+
+  - K-nn
+  - Logistic Regression
+
+*************************
+
+Load (install if needed) the below packages.
+
+
+```{r}
+packages = c("tidyverse","ISLR","class")
+#if a package is installed, it will be loaded
+#if any are not, the missing package(s) will be installed and loaded
+package.check <- lapply(packages, FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+        install.packages(x, dependencies = TRUE)
+        library(x, character.only = TRUE)
+    }
+})
+#verify they are loaded
+search()
+```
+
+The data set we will use for the classification problem is based on weekly S&P 500 stock index returns over 21 years. The data are part of the `ISLR` package.
+
+```{r}
+data(Weekly)
+str(Weekly)
+```
+
+We see that `Weekly` is a data frame with nine variables.
+
++  `Year`: The year that the observation was recorded
++  `Lag1`: Percentage return for previous week
++  `Lag2`: Percentage return for 2 weeks previous
++  `Lag3`: Percentage return for 3 weeks previous
++  `Lag4`: Percentage return for 4 weeks previous
++  `Lag5`: Percentage return for 5 weeks previous
++  `Volume`: Volume of shares traded (average number of daily shares traded in billions)
++  `Today`: Percentage return for this week
++  `Direction`: A factor with levels Down and Up indicating whether the market had a positive or negative return on a given week
+
+The objective is to find a classifier which can predict whether the market will move up or down based on the lag variables and possibly `Volume`.
+
+### Data analysis and preparation
+
+#### Part a
+
+Get a sense of the relationship between potential predictors and `Direction` by drawing separate scatter plots of each predictor versus `Direction`. Try `geom_jitter` as well as `geom_point`.
+
+```{r }
+
+weekly.long <- Weekly %>% gather(key= "Lag", value = "return", Lag1:Lag5)
+
+ggplot(data = weekly.long) +
+  geom_point(aes(x=Direction, y=return),
+             size=2) +
+    facet_wrap(~factor(Lag))
+```
+
+```{r}
+ggplot(data = weekly.long) +
+  geom_jitter(aes(x=Direction, y=return),
+             size=2) +
+    facet_wrap(~factor(Lag))
+```
+```{r}
+ggplot(data = weekly.long) +
+  geom_point(aes(x=Direction, y=Volume),
+             size=5) 
+```
+**Based on the scatter plots, which, if any, of the predictors seem to be related to `Direction`?**
+
+*************************
+
+#### Part b
+
+Next, divide the data into training and testing sets. Save the data frames as `Weekly.train` and `Weekly.test`. Our ultimate goal will be prediction. 
+
+The training data set will be all data before 2009. The testing data set will be all data 2009 to present. Our data set is rather large so this ratio is okay. You can experiment with different training and testing data set sizes. If we were working with data that is not time dependent we would take some type of random sample to create the testing and training data sets.
+
+```{r}
+Weekly.train <- Weekly %>% filter(Year < 2009)
+Weekly.test <- Weekly %>% filter(Year >= 2009)
+
+dim(Weekly.train)
+dim(Weekly.test)
+```
+*************************
+
+### Applying K-nn
+
+#### Part c
+
+Use k-nearest neighbors, `knn` function, with `k=1`, `k=9`, and `k=31`, and with `Lag1` as the predictor variable. In each case, display the confusion matrix (using the `table` function) and the proportion of correct predictions. 
+
+The `knn` function breaks ties at random so you may want to set the seed before each run to obtain reproducible results.
+
+Remember, we use the training data to fit the model, and then compute the confusion matrix and proportion of correct predictions using the testing data.
+
+```{r}
+knn_weekly <- knn(Weekly.train[1], Weekly.test[1], k = 9, cl=Weekly.train$Direction, prob = TRUE)
+table(knn_weekly, Weekly.test$Direction)
+```
+```{r}
+knn_weekly <- knn(Weekly.train[2], Weekly.test[2], k = 9, cl=Weekly.train$Direction, prob = TRUE)
+table(knn_weekly, Weekly.test$Direction)
+```
+
+
+**Repeat the above using `Lag2` and `Volume` both as predictors. Thus, your training and testing data sets now have two predictor variables as opposed to the one. You may want to scale the data set to try and improve the performance.**
+
+
+```{r}
+
+```
+
+**Which value of `k` gives the best predictions based on the proportion of correct predictions?**
+
+*************************
+
+### K-nn versus logistic regression
+
+#### Part d
+
+Fit a logistic regression model with the predictors `Lag2` and `Volume` using the training data set. How does the model compare to the k-nn results you obtained above? Evaluate the performance using the testing data set - use the `predict.glm` function.
+

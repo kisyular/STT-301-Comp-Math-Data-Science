@@ -1,0 +1,233 @@
+---
+title: "STT 301 Homework Assignment 4"
+author: "Rellika Kisyula"
+date: "November 1, 2018"
+output:
+  html_document: default
+  pdf_document: default
+---
+***********************
+
+### Homework Assignment 4 is due Monday, November 12 at 12:40pm EST.
+
+***********************
+
+### Instructions
+
+This assignment is to be done in groups using R Markdown. 
+Groups are posted on D2L. One Rmd file per group should be submitted to the 
+dropbox folder by the above deadline with each individual's name listed in the 
+"author" section. 
+
+Everyone in the group will earn the same grade. 
+
+### Rubric
+
+- **Total**: 10 points.
+- **Correctness**: Point values for the question and their respective parts 
+  are listed. Partial credit is available. Hard-coded solutions will
+  not receive full credit.
+- **Knitting**: Deduction of 0.5 points if the Rmd file does not knit for 
+  any reason.
+- **Style**: Use a third-level header to off-set each question in your 
+  solutions - as is done below. For questions with multiple parts (part a,
+  part b, etc), use 
+  fourth-level headers to off-set the parts in your solutions - as is done 
+  below. Use code comments for subsubparts. 
+  Coding style is very important. You will receive a deduction of up 
+  to 1.0 point if you do not adhere to good coding style. What I am looking for
+  in terms of style includes:
+    - appropriate variable use and naming
+    - appropriate function use
+    - good code commenting
+    - consistent code syntax
+- **Code documentation**: Code should be well documented.
+- **Late Submission**: Late homework will not be accepted.
+    
+*Please do not include the above Rubric, Instructions, and homework deadline*
+*sections in your solutions.*
+
+***********************
+
+
+```{r echo=FALSE, global_options}
+knitr::opts_chunk$set(comment = NA, tidy = TRUE)
+```
+
+```{r}
+packages = c("tidyverse")
+#if a package is installed, it will be loaded
+#if any are not, the missing package(s) will be installed and loaded
+package.check <- lapply(packages, FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+        install.packages(x, dependencies = TRUE)
+        library(x, character.only = TRUE)
+    }
+})
+#verify they are loaded
+search()
+```
+
+### Question 1 (1 point)
+
+Use the built-in R functions to generate 10 random variables for each of 5 different probability distributions. You may choose to simulate the random variables from any distribution except the Normal distribution and discrete uniform distribution. Parameter values may be chosen at your discretion.
+
+```{r}
+# BETA
+rbeta(n=10, shape1 = 1, shape2 = 2)
+
+# CAUCHY
+rcauchy(n=10)
+
+# POISSON
+rpois(n = 10, lambda = 2)
+
+# LOGISTICS
+rlogis(n = 10)
+
+# F
+rf(n = 20, df1 = 1, df2 = 1)
+```
+
+***********************
+
+### Question 2 (2 points)
+
+Conduct a simulation to answer the question below that was initially posed by Antoine Gombaud (a famous gambler in the 17th century).
+
+Which is more likely:
+
+ a. getting at least one 6 when rolling a single fair six-sided die 4 times,
+ b. getting at least one pair of sixes when two fair six-sided dice are thrown 24 times.
+ 
+The number of simulation replications you choose is at your discretion, but if you choose a number too small the results will not be accurate.
+ 
+***********************
+
+### Question 3 (3 points)
+
+Conduct a simulation to answer the following questions related to the birthday problem or birthday paradox.
+
+  a. What is the probability of at least two people sharing the same birthday (month and day) from a random sample of 23 individuals?
+  b. What is the probability of at least two people sharing the same birthday (month and day) from a random sample of 70 individuals?
+  c. Create a plot using `ggplot` with the number of individuals on the x-axis and the probability of at least one pair on the y-axis. You should simulate the probability of at least two people sharing the same birthday for each number of individuals from 2 to 100.
+  
+You may ignore leap year and assume 365 days per year. The number of simulation replications you choose is at your discretion, but if you choose a number too small the results will not be accurate.
+
+***********************
+
+### Question 4 (3 points)
+
+Suppose you have \$100 to play a casino game. Each trial of the game is independent. You are smart and figured out how to shift the odds of the game
+in your favor. 
+
+On each trial, the probability you win is 0.55, and the
+probability you lose is 0.45. 
+
+When you win, your payoff is double the bet amount.
+
+When you lose, you lose the risked amount. 
+
+You plan to play the game 1,000 times. 
+
+In this question you will investigate what is the optimal proportion of your money you should risk for each trial of the game. Assume that the proportion is the same for all 1,000 times you play.
+
+  a. What is your average bankroll after 1,000 game-plays if you risk 
+     80% on each trial?
+     
+```{r}
+# Initialize function with arguments,
+# Argument games default value is 1000
+bankroll.func <- function(risk, games = 1000){
+    
+    # Initialize the initial starting dollars
+    initial.dollars <- 100
+    
+    # create 1000 random simulated numbers
+    games.simulation <- runif(games)
+
+    # Loop through the simulation, if any value in the simulation
+    # matches or is less than winning number, increment dollar value.
+    for (var in 1:games){
+        if (games.simulation[var] <= 0.55){
+            initial.dollars <- initial.dollars * (1 + risk)
+        }else {
+            # Otherwise decrement the dollar value amount
+            initial.dollars <- initial.dollars * (1 - risk)
+        }
+    }
+    # return the new dollar value amount
+    return(initial.dollars)
+}
+
+# Run the simulations and stored the returned dollar value in a vector
+# Find the mean of the returned dollar value (vector)
+replycate = 1000
+trial.vector_500 <- replicate(replycate, bankroll.func(.8))
+mean(trial.vector_500, na.rm = T)
+```
+
+  b. What is your average bankroll after 1,000 game-plays if you risk
+     20% on each trial?
+```{r}
+replycate = 1000
+trial.vector_1000 <- replicate(replycate, bankroll.func(.2))
+mean(trial.vector_1000, na.rm = T)
+```
+  c. Can you find the proportion to risk on each trial that would maximize your bankroll after 1,000 game-play?
+```{r}
+# Set replication values
+replycate = 1000
+
+# Create an x_axis vector values from 0.01 to 1 in increment of 0.01
+x_axis <- seq(.01, 1, by =.01)
+
+# Initialize y_axis as an empty vector
+y_axis <- numeric(length = length(x_axis))
+
+# run through the x_axis values and apply `bankrool.fun` to it values
+for (var in 1:length(x_axis)){
+    y_values <- replicate(replycate, bankroll.func(x_axis[var]))
+    y_axis[var] <- mean(y_values, na.rm = T)
+}
+```
+
+```{r, fig.width= 10, fig.height=8}
+
+# Plot the graph
+df <- data_frame(x = x_axis, y=y_axis)
+ggplot(df, aes(x, y, color = "red")) +
+    geom_point() +
+    labs(x = "Simulations percentage risk", y = "Capital value", title = "Capital simulation of 1000") +
+    scale_y_log10(breaks=c(1, 2)) # Change y_axis into log form
+```
+     
+Look up the Kelly Criterion if you are interested in this question.
+
+***********************
+
+### Question 5 (1 point)
+
+Estimate the value of $\pi$ via a simulation. As a hint, think about the unit
+circle inside a 2 x 2 square.
+
+```{r}
+# x2+y2=1
+
+# generate x random values between -1 and 1
+# generate y random values between -1 and 1
+find.pi.func <- function() {
+    y_values <- runif(n = 4000000, max = 1, min = -1)
+    x_values <- runif(n = 4000000, max = 1, min = -1)
+    head(y_values)
+    head(x_values)
+    pi.value <- mean( (x_values**2 + y_values**2) <=1) *4
+    return(pi.value)
+}
+find.pi.func()
+```
+```{r}
+replycate = 50
+pi.vector <- replicate(replycate, find.pi.func())
+mean(pi.vector)
+```

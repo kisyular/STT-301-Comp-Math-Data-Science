@@ -1,0 +1,194 @@
+---
+title: "STT 301: Text Data"
+author: "Rellika Kisyula"
+date: "November 14, 2018"
+output: html_document
+---
+
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(warning=FALSE, message=FALSE, comment = NA)
+```
+
+## Introduction
+
+Learning Objectives
+
+  - String/character review
+  - Reading in text data
+  - Working with text data
+  
+*************************
+
+## Some string/text basics
+
+#### Whitespaces
+
+Whitespaces count as characters and can be included in strings:
+
+- `" "` for space
+- `"\n"` for newline
+- `"\t"` for tab
+
+```{r}
+message <- "Dear Shawn,\n\n Text data is a little boring. \n\n Sincerely, Everyone"
+message
+```
+
+#### Printing strings
+
+To print to the console, use the `cat` function.
+
+```{r}
+message
+cat(message)
+```
+
+#### Vectors of strings
+
+Recall, that character is a basic data type in R (like numeric, or logical), so we can make vectors of out them.
+
+```{r}
+str.1 <- "statistical"; str.2 <- "computing"; str.3 <- "isn't that bad"
+str.vec <- c(str.1, str.2, str.3) # Collect 3 strings
+str.vec # All elements of the vector
+str.vec[3] # The 3rd element
+str.vec[-(1:2)] # All but the 1st and 2nd
+head(str.vec, 2) # The first 2 elements
+tail(str.vec, 2) # The last 2 elements
+rev(str.vec) # Reverse the order
+```
+
+#### Matrices of strings
+
+The same idea applies for matrices.
+
+```{r}
+str.mat <- matrix("", 2, 3) # Build an empty 2 x 3 matrix
+str.mat[1,] <- str.vec # Fill the 1st row with str.vec
+str.mat[2,1:2] <- str.vec[1:2] # Fill the 2nd row, only entries 1 and 2, with those of str.vec
+str.mat[2,3] <- "isn't a fad" # Fill the 2nd row, 3rd entry, with a new string
+str.mat # All elements of the matrix
+t(str.mat) # Transpose of the matrix
+```
+
+#### Converting strings
+
+Recall, we can make values in R into strings using `as.character`. What if we want to convert a string? It is not always easy or straightforward.
+
+```{r}
+as.numeric("0.5")
+as.numeric("0.5 ")
+as.numeric("0.5e-10")
+as.numeric("Hi!")
+as.logical("True")
+as.logical("TRU")
+as.numeric(c("0.5", "TRUE"))
+```
+
+
+Additionally, we can convert lower and uppercase strings by using the functions: `tolower` or `toupper`.
+
+
+```{r}
+tolower("HELLO")
+toupper("no thank you")
+toupper("WhaT WiLl HaPpEn HeRe")
+```
+
+
+*************************
+
+## Reading in text data
+
+#### Using `readLines`
+
+Use `readLines` to read in the words from the Enron email data set. The Enron email data set is a massive text data set that has every email sent between managers prior to its exposure of accounting and corporate fraud. Save this as an object named `enron`. The data is available at: "https://archive.ics.uci.edu/ml/machine-learning-databases/bag-of-words/vocab.enron.txt"
+
+```{r}
+library(tidyverse)
+```
+```{r}
+# read the data in here.
+enron <- readLines("https://archive.ics.uci.edu/ml/machine-learning-databases/bag-of-words/vocab.enron.txt")
+
+# how many words are in the data set?
+length(enron)
+# which index contains the word "skilling"? Jeff Skilling was the CEO of Enron. You can find some other interesting words in this data set if you know the Enron story.
+match("skilling",enron)
+enron %>% { which(. == "skilling") }
+# display the first ten words
+enron[1:10]
+```
+
+
+#### Using `scan`
+
+Next we will read in the novel *Sense and Sensibility* by Jane Austen using the `scan` function. We specify that we are reading in character data, and that newline characters are the separators.
+
+```{r}
+SandS <- scan("http://www.stt.msu.edu/~melfi/STT301/data/austen.txt", what = "character", sep = "\n")
+```
+
+```{r}
+# which element is "CHAPTER 1"?
+match("CHAPTER 1",SandS)
+
+# which element is "THE END"?
+match("THE END", SandS)
+
+# remove all text before "CHAPTER 1" and after "THE END". Verify this was done correctly using the head and tail functions.
+chapter.1.the.end <- SandS[match("CHAPTER 1", SandS): match("THE END", SandS)]
+
+# use the paste function to create one long string of the novel as opposed to multiple lines with separate strings. Verify that the length is now 1. Display the struture using str.
+SandS <-  paste(SandS, collapse = " ")
+str(SandS)
+length(SandS)
+```
+
+*************************
+
+## The `paste` function
+
+Below is function to test if a given number is prime. Examples are provided below the function.
+
+```{r}
+is.prime <- function(num) {
+   if (num == 2) {
+      TRUE
+   } else if (any(num %% 2:(sqrt(num)) == 0)) {
+      FALSE
+   } else { 
+      TRUE
+   }
+}
+```
+
+```{r}
+is.prime(2)
+is.prime(4)
+is.prime(17)
+```
+
+**Write a function called `print.primes` that takes one argument, `n`, and prints out all the prime numbers less than or equal to `n`. You will want to use the function `is.prime` given above and the `print` function.**
+
+The ouput should be what you see below.
+
+```
+> print_primes(10)
+[1] 2
+[1] 3
+[1] 5
+[1] 7
+```
+
+**Rewrite `print.primes` to produce output such as you see below. You will want to now make use of the `paste` function. If you are getting quotes and the [1] try using `cat` instead of `print`.**
+
+```
+Prime Number 1 is 2 
+Prime Number 2 is 3 
+Prime Number 3 is 5 
+Prime Number 4 is 7
+```
+
+

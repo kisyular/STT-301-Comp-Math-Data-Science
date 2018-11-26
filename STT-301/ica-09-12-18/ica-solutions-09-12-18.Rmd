@@ -1,0 +1,324 @@
+---
+title: "STT 301: Vectors"
+author: "Shawn Santo"
+date: "September 12, 2018"
+output: html_document
+---
+
+## Introduction
+
+---
+
+**Learning objectives:**
+
+  + Vector subsetting
+  + Vector arithmetic
+  + Vector subsetting with logical vectors
+  + Basic R graphics
+
+---
+
+First, we will set code chunk options to be in force for the whole document, 
+unless overridden by the options in an individual code chunk. Typically we would
+use `echo = FALSE` in this chunk, since we wouldn't want it seen in the final
+document.
+
+The world `global_options` is just the name of the chunk. You can provide a
+name for each chunk by placing the name after the `r`.
+
+```{r global_options}
+knitr::opts_chunk$set(comment = NA, tidy = TRUE)
+```
+
+Today we will get some practice manipulating vectors in `R`. 
+Download the file `triplecrown.Rdata` from D2L and put it in the 
+working directory with this R Markdown file. 
+
+
+## Vector subsetting
+
+The triple crown of horse racing involves three races: Kentucky Derby, 
+Preakness, and Belmont Stakes. The data set consists of four vectors: 
+year, derby, belmont, and preakness. The winning time (in seconds) is 
+given with respect to each race and year and coincides with the `years` vector.
+
+```{r}
+load("triplecrown.Rdata")
+ls()
+```
+*You may see more variables other than the four associated with this data*
+*set depending on what is in your working environment.*
+
+First, let us see what years we are given.
+```{r}
+years
+```
+
+Let's extract the five oldest (1926-1930) winning times for each of the 
+three races.
+
+```{r}
+derby[c(1:5)]
+preakness[c(1:5)]
+belmont[c(1:5)]
+```
+
+Let's extract the five most recent (2013-2017) winning times for each of 
+the three races.
+
+```{r}
+derby[(length(derby)-4) : length(derby)]
+preakness[(length(preakness)-4) : length(preakness)]
+belmont[(length(belmont)-4) : length(belmont)]
+
+# Why does this not work?
+belmont[length(belmont)-4 : length(belmont)]
+```
+
+Explain why the above line of code does not work? What is R doing?
+
+**The `()` are missing. It is subsetting as if we have**
+**`-(4:length(belmont)) + length(belmont)`. To be safe always use `()`.**
+
+What type of vectors are `years`, `derby`, `preakness`, and `belmont`?
+```{r}
+typeof(years)
+typeof(derby)
+typeof(preakness)
+typeof(belmont)
+```
+
+## Vector manipulation
+
+Compute the average winning time over the most recent 10 years for each of the 
+three races.
+```{r}
+mean(derby[(length(years) - 9):length(years)])
+mean(preakness[(length(years) - 9):length(years)])
+mean(belmont[(length(years) - 9):length(years)])
+
+```
+
+What do you observe with regards to the mean winning times?
+
+**The Preakness has the fastest mean winning time over the last 10 years.**
+
+We will combine the three race vectors by column. To do this we utilize
+the `cbind` function. We will save this as a variable named `all.races`.
+```{r}
+all.races <- cbind(derby, preakness, belmont)
+```
+
+Let's create a comparison boxplot for each of the three races.
+```{r}
+boxplot(all.races,ylab="Time in Seconds",xlab="Race")
+# ylab, and xlab are graphical parameters that allow you to put labels on 
+# the y axis and x axis, respectively.
+```
+
+What do you observe in the above boxplot? Why may this be?
+
+**The Preakness had the fastest median winning time. The Belmont has the**
+**slowest median winning time. This may be due to different race lengths.**
+
+If a single horse wins all three races (Kentucky Derby, Preakness, 
+and Belmont Stakes) in a given year, he/she is deemed to have won the 
+triple crown. Since 1926 only 11 horses have won the triple crown. 
+We will list the years in which there was a triple crown winner.
+```{r}
+tc.winner.years <- c(1930, 1935, 1937, 1941, 1943, 1946, 1948, 1973, 1977, 1978, 2015)
+tc.winner.years
+length(tc.winner.years)
+```
+
+For the three races, we will compute the average winning time for the years 
+corresponding to a triple crown winner. First, to find the locations in 
+the vector `years`, where a horse won the triple crown, we will use a
+more advanced subsetting technique that will be discussed later.
+
+```{r}
+location <- which(years %in% tc.winner.years)
+location
+```
+
+To check we did this right we can use the `location` variable to 
+subset the `years` vector and check to see if the years match `tc.winner.years`.
+```{r}
+years[location]
+```
+
+Now, use the `location` vector to subset each of the race variables and 
+then compute the mean winning time.
+```{r}
+mean(derby[location])
+mean(preakness[location])
+mean(belmont[location])
+
+```
+
+Create a new vector named `tc.winner` that takes on the value `FALSE` for 
+the year a horse did not win the triple crown and the value `TRUE` for the 
+year a horse did win the triple crown. This vector should be the same length 
+as the vector `years`.
+```{r}
+tc.winner <- years %in% tc.winner.years
+```
+
+For the 11 horses that won the triple crown we will now list their names. 
+The names below are already listed in order in terms of the year the horse 
+won the triple crown. Hence, Gallant Fox was the name of the horse that won the triple crown in 1930. American Pharoah was the name of the horse that won the triple crown in 2015.
+```{r}
+tc.winner.names <- c("Gallant Fox", "Omaha", "War Admiral", "Whirlaway", "Count Fleet", "Assault", "Citation", "Secretariat", "Seattle Slew", "Affirmed", "American Pharoah")
+tc.winner.names
+```
+
+Attach the above names to the horses' respective times for each race.
+```{r}
+tc.winner.derby <- derby[location]
+names(tc.winner.derby) <- tc.winner.names
+tc.winner.derby
+
+tc.winner.preakness <- preakness[location]
+names(tc.winner.preakness) <- tc.winner.names
+
+tc.winner.belmont <- belmont[location]
+names(tc.winner.belmont) <- tc.winner.names
+
+```
+
+Sort the variables `tc.winner.derby`, `tc.winner.preakness`, and `tc.winner.belmont` from fastest to slowest. Remember, you can use the `sort` function.
+```{r}
+sort(tc.winner.derby)
+sort(tc.winner.preakness)
+sort(tc.winner.belmont)
+```
+
+What do you notice?
+
+**Secretariat is the fastest triple crown winner for all three races.**
+
+Finally, we will use a base plot functions in `R` to create a bar plot
+for each of the races with regards to the triple crown winners and their times.
+To create a bar plot you can use the `R` command `barplot`.
+```{r}
+barplot(tc.winner.derby, las=2, cex.names=0.5, ylab="Time in Seconds", main="Kentucky Derby")
+# Graphical Parameters
+  # las - changes orientation of horse names
+  # cex.names - scales the size of horse names <1 shirnks; >1 enlarges
+  # main - provides a title for the plot (all axis labels and titles should be in " ")
+```
+
+```{r}
+barplot(tc.winner.preakness, las=2, cex.names=0.5, ylab="Time in Seconds", main="Preakness")
+```
+
+```{r}
+barplot(tc.winner.belmont, las=2, cex.names=0.5, ylab="Time in Seconds", main="Belmont")
+```
+
+Some information about each race is given below.
+
+Race|Race Length
+----|-----------
+Kentucky Derby | 2000 meters
+Preakness      | 1900 meters
+Belmont Stakes | 2400 meters
+
+## More advanced vector subsetting
+
+So far we have directly specified the elements a of vector that we want 
+to extract. Typically, we want to extract elements that meet a condition, 
+such as all the years where the winning Kentucky Derby time was faster than 
+123.00 seconds. For this we perform subsetting with logical vectors. This 
+is formally discussed in Section 4.7 of the notes, but we will informally 
+use it now.
+
+Let's look at some examples with very simple vectors, 
+and then you'll use these ideas for the triple crown data vectors.
+
+```{r}
+set.seed(123) # Set the seed for reproducible random number generation
+
+x <- rbinom(10, 20, 0.9) # Generate 10 binomial(n=20, p=0.9) values
+y <- rbinom(10, 20, 0.8) # Generate 10 binomial(n=20, p=0.8) values
+x
+y
+x[x > 16] # Values of x which are larger than 16
+x[x == 18] # Values of x which are equal to 18
+length(x[x == 18]) # How many values of x are equal to 18?
+x[y < 15] # Values of x for which the corresponding values of y are less than 15
+x[x < y] # Values of x which are less than the correponding values of y
+x[x == 18] <- 0 # Replace 18 by 0 in x
+x
+```
+
+Use the above concepts to answer the questions below.
+
+a. How many Kentucky Derby winners had a time faster than 121.00?
+b. How many Belmont Stakes winners ran a faster time than the overall mean 
+   winning time?
+c. In what years was the winning Kentucky Derby time faster than the winning 
+   Preakness time?
+d. How many Belmont Stakes winners had a winning time between 148.00 and 152.00
+   seconds (inclusive)? In what years did this occur?
+
+```{r}
+# Part a
+length(derby[derby < 121])
+
+# Part b
+length(belmont[belmont < mean(belmont)])
+
+# Part c
+years[derby < preakness]
+
+# Part d
+length(belmont[belmont >= 148 & belmont <= 152])
+years[belmont >= 148 & belmont <= 152]
+
+```
+
+## Data analysis review
+
+Data on the number, in thousands, of international airline passengers from 1949-1960 are built in to `R`. These are in the form of a time series, and we'll first convert these to a vector since that's the type of data structure we currently know how to manipulate.
+
+```{r}
+passengers <- as.vector(AirPassengers)
+passengers
+```
+
+Investigate these data using `R` functions such as `mean`, `max`, `min`, `summary`, `sd`, `length`, etc. 
+```{r}
+summary(passengers)
+
+sd(passengers)
+
+length(passengers)
+```
+
+Draw a histogram of the number of passengers using the `hist` function. You
+can add a title and label if you want using the graphical parameters mentioned above.
+
+```{r}
+hist(passengers)
+```
+
+What do you notice?
+
+**The histogram is skewed right.**
+
+Create a scatter plot of the number of passengers using the `plot` function. 
+The main arguments to `plot` are `x` and `y`, vectors of x and y values. 
+First draw the scatter plot with no further arguments, and then add 
+the graphical parameter argument `type = "l"` which asks `R` to connect 
+the points. Again, you may add a title and labels using the 
+graphical parameters mentioned above.
+
+```{r}
+plot(passengers, type = "l", xlab = "Time", ylab = "Number of passengers")
+```
+
+What do you notice from the scatter plot?
+
+**There exists a positive trend. There is also some seasonality with a larger**
+**number of passengers traveling in the summer.**

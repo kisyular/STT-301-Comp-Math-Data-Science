@@ -1,0 +1,216 @@
+---
+title: "STT 301: More graphics with ggplot2"
+author: "Shawn Santo"
+date: "October 8, 2018"
+output: html_document
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.path='Figs/', warning=FALSE, message=FALSE, dev = "png", comment = NA)
+```
+
+## Introduction
+
+---
+
+**Learning objectives:**
+
+  - `ggplot` function
+    - `geom_bar`
+    - `geom_histogram`
+    - `geom_boxplot`
+    - `geom_raster`
+    - `geom_density`
+
+---
+
+The package `ggplot2` has many options and capabilities so you will probably find the following `ggplot2` help resources useful:
+
+  1. [http://docs.ggplot2.org/current/](http://docs.ggplot2.org/current/)
+  2. the graphics portion of the R cookbook site at http://www.cookbook-r.com/Graphs/
+  3. http://zevross.com/blog/2014/08/04/beautiful-plotting-in-r-a-ggplot2-cheatsheet-3/
+  4. RStudio "Data Visualization with ggplot2" cheatsheet
+  4. Google
+
+**********
+
+## Part 1
+### Bar plots - Diamonds data
+
+The ggplot2 package comes with a data set called `diamonds`. Let's look at 
+it below. To obtain further details type `?diamonds` in your console window.
+
+```{r}
+library(ggplot2)
+str(diamonds)
+```
+
+Last time you created scatter plots such as the one below by making use of `geom_point`.
+
+```{r}
+diamond.plot <- ggplot(data=diamonds, aes(x=carat, y=price, colour = color))
+diamond.plot + geom_point() + facet_wrap(~cut)
+```
+
+Use `geom_bar` to create the bar plots you see below.
+
+#### Plot a
+
+```{r echo = T}
+diamond.bp <- ggplot(data = diamonds, mapping = aes(x = cut))
+diamond.bp + geom_bar()
+```
+
+#### Plot b
+
+```{r echo = T}
+diamond.bp2 <- ggplot(data = diamonds, mapping = aes(x = cut, fill = clarity))
+diamond.bp2 + geom_bar()
+```
+
+#### Plot c
+
+Details:
+
+  - specify the position argument as "dodge"
+
+```{r echo = T}
+diamond.bp2 + geom_bar(position = "dodge")
+```
+
+*************************
+
+## Part 2
+### Histograms - Diamonds data
+
+Use `geom_histogram` to create the histograms you see below.
+
+#### Plot a
+
+Details:
+
+  - binwidth used 0.15
+
+```{r echo = T}
+ggplot(data = diamonds, mapping = aes(x = carat, fill = cut)) + geom_histogram(binwidth = 0.15)
+```
+
+#### Plot b
+
+Details:
+
+  - binwidth used: 1000
+  - colors used: "lightblue", "darkgreen", "darkorange", "darkred"
+  - red line represents the mean price
+  - orange line represents the median price
+  - create vertical lines with `geom_vline`
+
+```{r echo = T}
+ggplot(data = diamonds, mapping = aes(x = price)) + 
+  geom_histogram(binwidth = 1000, fill = "lightblue", color = "darkgreen") + 
+  geom_vline(xintercept = mean(diamonds$price), color = "darkred") +    
+  geom_vline(xintercept = median(diamonds$price), color = "darkorange") + 
+  labs(title = "Diamond Prices", caption = "Skewed right distribution")
+```
+
+
+*************************
+
+## Part 3
+### Box plots - Diamonds data
+
+Use `geom_boxplot` to create box plots for the plots you see below.
+
+#### Plot a
+
+Details:
+
+  - colors used: "darkgrey", "purple"
+  - use `x = reorder(cut, price, FUN = median)` to arrange box plots 
+    by median value
+  - use `coord_flip` for horizontal box plots
+
+```{r echo = T}
+ggplot(data = diamonds, 
+       mapping = aes(x = reorder(cut, price, FUN = median), y = price)) +
+  geom_boxplot(color = "darkgrey", fill = "purple") + coord_flip() +
+  labs(x = "cut")
+```
+
+#### Plot b
+
+Details:
+
+  - colors used: "black", "purple"
+
+```{r echo = T}
+ggplot(data = diamonds, mapping = aes(x = cut, y = price)) + 
+  geom_boxplot(color = "black", fill = "purple") + coord_flip() +
+  facet_wrap(~clarity, nrow = 2)
+```
+
+*************************
+
+## Part 4
+### Heat maps - Diamonds data
+
+#### Plot a
+
+Use `geom_raster` to create the heat maps for the plots you see below. The code provided below will create a new data frame that has the median price for each color and cut combination of the diamonds data frame.
+
+```{r}
+diamonds.median <- aggregate(formula = price ~ color + cut, 
+                             data = diamonds, FUN = median)
+str(diamonds.median)
+```
+
+Use the data frame `diamonds.median` to create the below heatmap with
+`geom_raster`.
+
+```{r echo = T}
+ggplot(data = diamonds.median, mapping = aes(x = color, y = cut, fill = price)) +
+  geom_raster() +
+  labs(title = "Heatmap for the median price of diamonds")
+```
+
+```{r}
+diamonds.median2 <- aggregate(formula = price ~ color + cut + clarity, 
+                              data = diamonds, FUN = median)
+str(diamonds.median2)
+```
+
+Use the data frame `diamonds.median2` to create the below faceted heat maps
+with `geom_raster`.
+
+```{r echo = T}
+ggplot(data = diamonds.median2, mapping = aes(x = color, y = cut, fill = price)) +
+  geom_raster() + 
+  facet_wrap(~clarity, nrow = 2) + 
+  labs(title = "Heatmap for the median price of diamonds")
+```
+
+## Part 5
+### Density plot
+
+Below is an example of a density plot. Run the ggplot part line by line to see
+what is happening as each layer is added.
+
+```{r}
+# generate 1000000 random variables from two normal distributions
+x <- rnorm(1000000, mean = 0, sd = 1)
+y <- rnorm(1000000, mean = 3, sd = 2)
+
+# create a data frame
+norm_df <- data.frame(value = c(x, y), norm = rep(c("x", "y"), each = 1000000))
+
+# plot the densities
+ggplot(data = norm_df, aes(x = value, fill = norm)) + 
+  geom_density(alpha = 0.50) +
+  labs(x = "Value", y = "Density", 
+       title = "Normal probability density functions")+
+  theme_bw() +
+  scale_fill_discrete(name = "",
+                      breaks = c("x", "y"),
+                      labels = c("Normal(0, 1)", "Normal(3, 2)"))
+```
+

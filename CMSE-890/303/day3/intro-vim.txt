@@ -1,0 +1,42 @@
+TERMINAL HISTORY
+
+conda uninstall jupyter
+conda unistall jupyter
+conda update --all
+pip uninstall imgkit
+
+Letters H, J, K, L can be used to navigate vim which in CM (Command Mode)
+    * Typing 4H will move the cursor 4 spaces left
+    * Typing 8K will move up 8 spaces
+
+0 moves to the beginning of the line and $ to the end of the line
+
+W key moves forward 1 word
+B to move back 1 word - 4B to move 4 words back
+
+G takes you to the end of the file
+1G takes to the begining of line
+3G to go to line 3
+
+A appends text
+
+CW changes the word from the start of the cursor
+C2B changes text backwards
+
+C$ changes text from the cursor to the end of the line
+
+CC to replace the entire line of the text.
+
+R is a replace command
+S is for substitute command
+
+Hit ESC to exit Insert, Append, Replace Modes
+
+DW deletes entire word
+DD deletes the entire line
+X deletes a single character
+
+To undo the last command, type U
+
+:wq will write and quit the file
+

@@ -1,0 +1,35 @@
+What is R?
+-An open source programming environment for ststistical computing 
+and computing.
+- It is scripted language
+
+Why Learn R?
+- One of the best paid skills
+- Users can add functionalities
+- Can interact with many software and can query data from databases
+and websites
+
+What is Data Science?
+- An intersection of Computer Science, Domain Expertise and Math
+
+How the course will be delivered?
+- Basic of R
+- R markdown
+- Data Manipulations
+- Graphics
+- Advanced data manipulation
+- Statistics
+
+What each Option in R-Markdown Supressses
+Option		Run Code	Show Code 	Output 		Plots 		Message 	Warning
+-------------------------------------------------------------------------------------------------------
+Eval=FALSE 	X				X		X		X		X
+Include= FALSE			X		X 		X  		X   		X
+Echo=FALSE 			X
+Results="hide" 					X
+fig.show="hide"							X
+message=FALSE									X
+warnings=FALSE											X
+
+For reading in large datasets, set the option Cache=TRUE to reduce the knit time
+

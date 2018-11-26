@@ -1,0 +1,4 @@
+"Wingband" "subspecies" "gender" "predictedResistance" "actualResistance"
+"6" "X006" "WLH" "F" 75 80
+"7" "X007" "WLH" "F" 56 50
+"11" "X011" "WLH" "F" 50 55

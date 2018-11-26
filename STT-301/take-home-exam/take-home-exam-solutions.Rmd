@@ -1,0 +1,125 @@
+---
+title: "STT 301: Take-home exam solutions"
+author: "Shawn Santo"
+date: "October 10, 2018"
+output: html_document
+---
+
+****************
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, comment = NA, message = F, warning = F)
+```
+
+```{r}
+# load required package
+library(ggplot2)
+```
+
+```{r}
+# read in the wine data
+URL <- "https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data"
+wine <- read.csv(URL, stringsAsFactors = F, header = F)
+
+# assign column names
+colnames(wine) <- c("origin", "alcohol", "acid", 
+                    "ash", "alcalinity", "magnesium", 
+                    "phenols", "flavanoids", "nonflavanoid", 
+                    "proanthocyanins", "color.int", "hue", 
+                    "od", "proline")
+
+# change origin variable to a factor
+wine$origin <- as.factor(wine$origin)
+
+str(wine)
+```
+
+## Question 1 
+
+### Plot 1 
+
+```{r fig.width=9, fig.height=6, echo=T}
+ggplot(data = wine, mapping = aes(x = origin, y = alcohol)) + 
+  geom_boxplot(fill = "purple", alpha = 0.4) + 
+  geom_point(aes(x = origin, y = alcohol)) +
+  labs(x = "Wine origin", y = "Alcohol", 
+       title = "Alcohol content by wine origin")
+```
+
+### Plot 2
+
+```{r fig.width=12, fig.height=6, echo=T}
+ggplot(data = wine, mapping = aes(x = flavanoids)) +
+  geom_density(aes(fill = origin), alpha = 0.5) +
+  labs(x = "Flavanoids", y = "Density",
+       fill = "Wine origin",
+       title = "Density of wine flavanoids by origin")
+
+```
+
+### Plot 3
+
+```{r fig.width=12, fig.height=6, echo=T}
+ggplot(data = wine, mapping = aes(x = flavanoids, y = phenols)) +
+  geom_point(mapping = aes(color = alcohol), size = 3) +
+  scale_color_gradient(low = "blue", high = "red") +
+  facet_grid(~origin) +
+  theme_bw() +
+  labs(shape = "Origin", color = "Alcohol Level", 
+       x = "Flavanoids", y = "Phenols",
+       title = "Phenols versus flavanoids",
+       caption = "Facets represent wine origins")
+```
+
+### Plot 4
+
+Answers will vary.
+
+
+**************
+
+## Question 2
+
+```{r echo=T}
+df.numeric.summary <- function(df){
+  
+  df.col <- dim(df)[2]
+  results <- list()
+  df.col.names <- 0
+  j <- 0
+  
+  for (i in 1:df.col){
+    # check if column is numeric
+    if (is.numeric(df[,i])){
+      # compute summary statistics
+      numeric.results <- c(mean(df[,i]), 
+                           median(df[,i]), 
+                           (quantile(df[,i], 0.75)-quantile(df[,i], 0.25)))
+      names(numeric.results) <- c("Mean", "Median", "IQR")
+      # assign numeric.results to the list named results
+      results[[j+1]] <- numeric.results
+      df.col.names[j+1] <- names(df)[i]
+      j <- j + 1
+    }
+  }
+  
+  names(results) <- df.col.names
+  
+  return(results)
+}
+```
+
+```{r}
+df.numeric.summary(mtcars[, 1:4])
+df.numeric.summary(wine[, 1:4])
+```
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,41 @@
+
+ssh dev-intel16
+cd CMSE890Sec303/Session3
+
+wget ftp://ftp.ensembl.org/pub/release-93/fasta/caenorhabditis_elegans/dna/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz .
+
+scp Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz kisyular@hpcc.msu.edu:CMSE890Sec303/Session3
+
+Transfering time
+Caenorhabditis_elegans.WBcel235.dna.toplevel_2.fa.gz     100% 7076KB   7.6MB/s   00:00
+Caenorhabditis_elegans.WBcel235.dna.toplevel_1.fa.gz     100%   29MB   9.6MB/s   00:03
+
+ls -lah
+File size before unzipping:
+-rw-r--r--. 1 kisyular pa 29M Sep 11 15:47 Caenorhabditis_elegans.WBcel235.dna.toplevel_1.fa.gz
+-rw-r--r--. 1 kisyular pa 7.0M Sep 11 16:10 Caenorhabditis_elegans.WBcel235.dna.toplevel_2.fa.gz
+
+File size after unzipping
+gunzip Caenorhabditis_elegans.WBcel235.dna.toplevel_1.fa.gz
+-rw-r--r--. 1 kisyular pa 98M Sep 11 15:47 Caenorhabditis_elegans.WBcel235.dna.toplevel_1.fa
+-rw-r--r--. 1 kisyular pa 24M Sep 11 16:10 Caenorhabditis_elegans.WBcel235.dna.toplevel_2.fa
+
+diff command:
+diff Caenorhabditis_elegans.WBcel235.dna.toplevel_1.fa Caenorhabditis_elegans.WBcel235.dna.toplevel.fa > differencesf1_f0.txt
+These differences are written into a textfile.
+
+Different transfer method
+rsync -avzhe ssh --progress
+Caenorhabditis_elegans.WBcel235.dna.toplevel_1_rsync.fa.gz
+      30.33M 100%    8.04MB/s    0:00:03 (xfer#1, to-check=0/1)
+
+Command to move immediately from one chromosome header to the next.
+In normal mode: I placed cursor in word, and then Shift + *
+
+Command for your text editor to put “chr” in front of the chromosome Roman numeral.
+%s/>/>chr/g
+
+Zip all the files
+gzip Caenorhabditis_elegans.WBcel235.dna.toplevel_2.fa
+gzip Caenorhabditis_elegans.WBcel235.dna.toplevel_1.fa
+gzip Caenorhabditis_elegans.WBcel235.dna.toplevel.fa

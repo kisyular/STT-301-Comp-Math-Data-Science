@@ -1,0 +1,163 @@
+---
+title: 'STT 301: Take-home exam'
+author: "Rellika Kisyula"
+date: "10/16/2018"
+output: 
+    html_document:
+        fig_caption: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Required packages: ggplot2
+
+```{r}
+# load required package
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+```
+
+## Data
+The data are the results of a chemical analysis of wines grown in the same region in Italy but derived from three different cultivars (origins). The analysis determined the quantities of 13 constituents found in each of the three types of wines. The data is from the UCI Machine Learning Repository
+(https://archive.ics.uci.edu/ml/datasets/wine).
+The data set has 14 columns.
+
+1. Origin
+2. Alcohol
+3. Malic acid
+4. Ash
+5. Alcalinity of ash
+6. Magnesium
+7. Total phenols
+8. Flavanoids
+9. Nonflavanoid phenols
+10. Proanthocyanins
+11. Color intensity
+12. Hue
+13. OD280/OD315 of diluted wines
+14. Proline
+
+Copy the below code into an R chunk in your .Rmd file.
+
+```{r}
+# read in the wine data
+URL <- "https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data"
+wine <- read.csv(URL, stringsAsFactors = F, header = F)
+
+# assign column names
+colnames(wine) <- c("origin", "alcohol", "acid",
+                    "ash", "alcalinity", "magnesium",
+                    "phenols", "flavanoids", "nonflavanoid",
+                    "proanthocyanins", "color.int", "hue",
+                    "od", "proline")
+
+# change origin variable to a factor
+wine$origin <- as.factor(wine$origin)
+
+str(wine)
+```
+
+## Question 1
+Use the `wine` data frame to produce each of the plots below using `ggplot`. Your plot must look exactly the same to earn full credit. Details are provided when not obvious.
+
+## Plot 1 (10 points)
+Details:
+include the chunk option: `fig.width=9, fig.height=6`
+color of boxes is purple
+transparancy is 0.4
+
+```{r fig.width=9, fig.height=6}
+ggplot(data = wine,
+       mapping=aes(x = origin, y = alcohol)) +
+    geom_boxplot(color = "black", fill = "purple", alpha=0.4) +
+    labs(x="Wine Origin", y="Alcohol", title="Alcohol content by wine origin") +
+    geom_point(aes(y=alcohol), position = position_dodge(width=0.75))
+
+```
+
+
+## Plot 2 (10 points)
+Details:
+include the chunk option: `fig.width=12, fig.height=6`
+transparancy is 0.5
+
+```{r fig.width=12, fig.height=6}
+ggplot(data = wine, aes(x = flavanoids, fill = origin)) + 
+  geom_density(alpha = 0.50) +
+  labs(x = "Flavanoids", y = "Density", 
+       title = "Density of wine flavanoids by origin")
+```
+
+## Plot 3 (10 points)
+Details:
+include the chunk option: `fig.width=12, fig.height=6`
+size is 3
+to change color scale: `scale_color_gradient(low = "blue", high = "red")`
+theme is bw
+
+
+```{r fig.width=12, fig.height=6, fig.cap="Caption", fig.pos="R"}
+ggplot(data=wine, aes(x=flavanoids, y=phenols, color = alcohol)) +
+    geom_point(size=3) + facet_wrap(~origin) +
+    theme_bw() +
+    scale_color_gradient(low = "blue", high = "red") +
+    labs(name = "New Legend Title", 
+         title= "Phenols versus flavanoids",
+         x= "Flavanoids",
+         y= "Phenols",
+         color='Alcohol Level',
+         caption = "Facets represents wine origin")
+```
+
+
+##Plot 4 (10 points)
+Use `wine` to create an original plot with `ggplot`. You may use additional packages. If you do use additional packages, be sure to load them with the library function in the chunk where you have `library(ggplot2)`.
+```{r}
+head(wine)
+```
+
+**I removed the last column *proline* to reduce the outliers in the bar graph**
+```{r}
+wine %>% 
+    group_by(origin=factor(origin)) %>%
+    summarise_all(funs(mean)) %>% 
+    gather(constituents, quantities, -origin, -proline) %>%
+    ggplot(., aes(x=constituents, y=quantities, fill=origin))+
+    geom_bar(stat='identity', position='dodge') +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+    labs(x= "wine constituents",
+         y= "Constituents quantities",
+         title = "Wine constituents and their quantities in each wine")
+
+```
+
+## Question 2 (20 points)
+Write a function named `df.numeric.summary` that takes any data frame as an input, and for each numeric variable in the data frame, the function returns the variable’s mean, median, and inter-quartile range in the form of a list. The list should have the names of the corresponding variables. 
+
+Below are two examples for you to see the function in action.
+
+```{r}
+df.numeric.summary <- function(df) {
+   df.numeric <- df[,sapply(df, is.numeric)]
+   lyst <- list()
+   for (variable in names(df.numeric)) {
+       lyst[[variable]] <- 
+           c(c("Mean", "Median", "IQR"),
+            c(mean(df.numeric[[variable]], na.rm = T),
+            median(df.numeric[[variable]], na.rm = T),
+            IQR(df.numeric[[variable]], na.rm = T)))
+   }
+   return(lyst)
+}
+```
+
+```{r}
+df.numeric.summary(wine[, 1:4])
+```
+
+```{r}
+df.numeric.summary(mtcars[, 1:4])
+```

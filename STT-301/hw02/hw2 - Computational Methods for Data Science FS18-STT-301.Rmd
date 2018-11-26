@@ -1,0 +1,285 @@
+---
+title: "STT 301 Homework Assignment 2"
+author: "Rellika Kisyula"
+date: "10/3/2018"
+output: html_document
+---
+
+```{r setup, include=TRUE, cache=TRUE}
+library(knitr)
+opts_chunk$set(comment = NA, message = FALSE, warning = FALSE)
+```
+
+# Introduction
+*The opioid epidemic is the deadliest drug overdose crisis in US history - on track to kill more people over the next ten years than currently live in entire cities like Baltimore or Miami. More people died last year from drug overdoses than American soldiers during the Vietnam War. In recent times, the opioid crisis has become an issue that the country can no longer ignore.*
+
+*So far in 2018, anti-opioid ads on television have aired in congressional and gubernatorial races more than 50,000 times across 25 states, said The Wall Street Journal. At this point in 2014, Kentucky was the only state with political ads mentioning opioids that aired only 70 times. In other words, political ads against opioids have skyrocketed roughly 714 times when compared to this time in the 2014 midterm election cycle.*
+
+The above is an excerpt from an article, “Opioid Crisis Emerges As Top Campaign Theme For Midterms”.
+
+Connecticut is one of the states with a high number of opiod deaths. For this assignment you will work with Connecticut’s open data on Accidental Drug Related Deaths 2012-2017. The website that hosts the data and other related resources is available [here](https://data.ct.gov/Health-and-Human-Services/Accidental-Drug-Related-Deaths-2012-2017/rybz-nyjw). You will need to read the website first to understand the data and variables. There are some other interesting features on the website for data visualization. By the end of this course you will have the capabilities to replicate and expand on those visualizations.
+
+You will need the following two packages for a plot to generate at the end of this assignment. Install the packages with  `install.packages("dplyr")` and `install.packages("ggplot2")`. Do this in your console and do not include it in your .Rmd file. After installation you will want to load the packages with the library function. Include the below two lines of code as your second R chunk in your .Rmd file. Remember, a package only needs to be installed once, but each time you want to use it you need to load it into your workspace.
+
+```{r}
+library(dplyr)
+library(ggplot2)
+```
+
+Below is code to read in the data. The opiod object is a data frame with 4083 rows and 32 columns. This should be your third R chunk.
+
+```{r}
+opiod <- read.csv("https://data.ct.gov/api/views/rybz-nyjw/rows.csv?accessType=DOWNLOAD",
+                  stringsAsFactors = FALSE)
+names(opiod)
+```
+
+### Question 1 - Data exploration and cleaning (6 points)
+####Part a (0.75 points)
+  1. Create a data frame called `opiod_dem` that contains all the rows of opiod, but only contains the columns Sex, Race, Age
+```{r}
+opiod_dem <- select(opiod, c(Sex, Age, Race))
+head(opiod_dem)
+```
+
+  2. Compute the mean, median, and standard deviation for Age from opiod_dem.
+  
+```{r}
+mean_age <- mean(opiod_dem$Age, na.rm = TRUE)
+median_age <- median(opiod_dem$Age, na.rm = TRUE)
+sd_age <- sd(opiod_dem$Age, na.rm = TRUE)
+
+cat("The mean of age is: ", mean_age, "\n")
+cat("The median of age is: ", median_age, "\n")
+cat("The standard deviation of age is: ", sd_age)
+```
+
+  3. Create a boxplot for the variable Age from `opiod_dem`. Include a label for the y-axis that reads, “Age at time of death”.
+  
+```{r}
+boxplot(opiod_dem$Age, ylab= "Age at time of death")
+```
+
+***
+
+###Part b (4 points)
+The function `table` builds a contingency table of the counts at each combination of factor levels. Try it out with `table(opiod_dem$Sex)`. You should notice that for 4 of the deaths a value was not provided in the data for `Sex`. In the data set empty values are as “”.
+
+```{r}
+table(opiod_dem$Sex)
+```
+***
+
+1. Subset `opiod_dem` to remove the rows where the variable `Sex` has `“”` as a value. Save the resulting data frame as `opiod_dem_filter`.
+```{r}
+opiod_dem_filter <- opiod_dem[opiod_dem$Sex != "",]
+head(opiod_dem_filter)
+```
+***
+
+2. Subset `opiod_dem_filter` to remove the rows where the variable `Race` has `“”` as a value. Save the resulting data frame as  `opiod_dem_filter`.
+```{r}
+opiod_dem_filter <- opiod_dem_filter[opiod_dem_filter$Race != "",]
+head(opiod_dem_filter)
+```
+***
+
+3. Use the function `table` to build a table for the variable `Sex` from `opiod_dem_filter`.
+```{r}
+table(opiod_dem_filter$Sex)
+```
+
+***
+
+4. Use the function `table` to create a two way contingency table for the variables `Race` and `Sex` from `opiod_dem_filter`. Save the resulting table as an object named `dem`.
+```{r}
+dem <- table(opiod_dem_filter$Race, opiod_dem_filter$Sex)
+dem
+```
+
+***
+
+5. Turn `dem` into a data frame with the following code: `dem_df <- data.frame(female = dem[, 1], male = dem[, 2])`.
+```{r}
+dem_df <- data.frame(female = dem[, 1], male = dem[, 2])
+dem_df
+```
+***
+6. Add a column named `sums` to `dem_df` that is the row sum.
+```{r}
+dem_df$Sum = dem_df$female + dem_df$male
+dem_df
+```
+***
+
+7. From 6, calculate which race has the highest percentage of female deaths, and which race has the highest percentage of male deaths.
+```{r}
+dem_df$Fper <- (dem_df$female/dem_df$Sum)*100
+dem_df$Mper <- (dem_df$male/dem_df$Sum)*100
+dem_df
+
+# From the male percentage column we can see both Hawaiian and Native America had higher death rate of 100%
+
+# From the female percentage column we can see than Chinese had higher death rate of 50%
+```
+
+8. Repeat the calculation in 6, but only for races with a minimum of 100 deaths.
+
+```{r}
+over100 <- dem_df[dem_df$Fper >=100 | dem_df$Mper >=100 ,]
+over100
+```
+***
+
+##Part c (1.25 points)
+You will now get back to working with the data frame object opiod.
+```{r}
+opiod <- read.csv("https://data.ct.gov/api/views/rybz-nyjw/rows.csv?accessType=DOWNLOAD", stringsAsFactors = FALSE)
+```
+***
+
+1. Display the unique counties for the variable `Death.County`. You should observe that three counties do not make sense. One is “”, another is “USA”, and another is " FAIRFIELD" as opposed to “FAIRFIELD”, note
+the extra space. You will correct each of these issues in 2-4.
+```{r}
+unique(opiod$Death.County)
+```
+***
+
+2. Update `opiod` so " FAIRFIELD" is “FAIRFIELD” for the variable `Death.County`.
+```{r}
+opiod[opiod$Death.County ==" FAIRFIELD",] <- "FAIRFIELD"
+unique(opiod$Death.County)
+```
+***
+
+3. Update `opiod` so “” is “NOT RECORDED” for the variable Death.County.
+```{r}
+opiod[opiod$Death.County =="",] <- "NOT RECORDED"
+unique(opiod$Death.County)
+```
+***
+4. Update `opiod` so “USA” is “NOT RECORDED” for the variable `Death.County`.
+```{r}
+opiod[opiod$Death.County =="USA",] <- "NOT RECORDED"
+unique(opiod$Death.County)
+```
+***
+5. Create a barplot with the function `barplot` for the number of deaths from the variable Death.County. As a hint, use the `table` function to generate counts for each county in `Death.County`. If you did steps 2-4 correctly, you should have **nine** categories. Include the graphical parameter `cex.names = 0.5` to shrink the county names so they fit in the plot window.
+```{r}
+barplot(table(opiod$Death.County), cex.names = 0.5, las=2)
+```
+
+6. Update opiod so “” values for the variable `Race` are “Unknown”.
+```{r}
+opiod[opiod$Race =="",] <- "Unknown"
+#opiod[opiod$Sex =="",] <- "Unknown"
+```
+***
+
+
+# Question 2 - County summary function (3 points)
+
+Create a function named `county.summary`that has two arguments: `df` and `county`. The opiod data frame will be passed to the argument `df` , and a county in Connecticut will be passed to the `county` argument as a character. See below for some examples of county.summary in action. Your function, `county.summary`, should return a list with the following information:
+
++ total deaths in the specified county,
++ mean age of death in the specified county,
++ median age of death in the specified county,
++ a demographics data frame for county deaths based on race and gender.
+
+An idea of how the function should work: the county name passed into the function should filter the data frame based on the variable `Death.County`; compute the necessary information from the filtered data frame; return the results in a list and in the format you see below. Include a check at the begining of your function that will give an error to the user if a county is entered that is not in Connecticut.
+
+```{r}
+county.summary <- function(df = opiod, county){
+  if(!(county %in% df$Death.County)){
+    return(cat("Error in county.summary(opiod,", county, "): County is not located in CT!", "\n"))
+  }else{
+    all_info <- df[df$Death.State =="CT" & df$Death.County == county,]
+    info_lst = list("total.deaths" = length(all_info$Race),
+                "mean.age" = mean(as.numeric(all_info$Age), na.rm = T),
+                "median.age" = median(as.numeric(all_info$Age), na.rm = T),
+                "demographics" = table(all_info$Race, all_info$Sex))
+    return(info_lst)
+  }
+}
+```
+***
+
+```{r}
+county.summary(df = opiod, county = "LITCHFIELD")
+county.summary(opiod, "HARTFORD")
+county.summary(opiod, "hartford")
+county.summary(opiod, "INGHAM")
+```
+# Question 3 Choropleth map (1 point)
+##Part a
+1. Use the `opiod` data frame to create a data frame the contains two columns. Column 2 should contain the counts of total deaths in that county. Column 1 should contain the county’s name. You should work with the   `Death.County` variable.
+```{r}
+
+death_in_county <- data.frame(table(opiod$Death.County))
+death_in_county
+```
+2. Add the names “subregion” and “count” to the data frame in 1.
+```{r}
+colnames(death_in_county) <- c("subregion","count")
+death_in_county
+```
+3. Remove the “NOT RECORDED” row from your data frame.
+```{r}
+new_death_in_county <- death_in_county[ !(death_in_county$subregion =="NOT RECORDED"), ]
+new_death_in_county
+```
+4. Pass your data frame into the function ct.choropleth given below. 
+```{r}
+library(maps)
+ct.choropleth <- function(df){
+  # generate county and state boundaries
+  ct.state <- map_data("state", region = "connecticut")
+  ct.county.df <- map_data("county", region = "connecticut")
+  # convert county names to lower case
+  county.df <- mutate_all(df, funs(tolower))
+  # merge data frames to pass a single data frame to ggplot
+  choropleth <- inner_join(ct.county.df, county.df, by = "subregion")
+  # convert counts to type numeric
+  choropleth$count <- as.numeric(choropleth$count)
+  # generate choropleth
+  ct.plot <- ggplot(choropleth, aes(long, lat, group = group)) +
+    geom_polygon(aes(fill = count), alpha = 0.75, color = "white") +
+    geom_polygon(data = ct.county.df, colour = "white", fill = NA) +
+    geom_polygon(data = ct.state, color = "black", fill = NA)+
+    scale_fill_gradient2(low = "yellow", mid = "orange", high = "red") +
+    ggtitle("Opiod deaths in Connecticut by county") +
+    labs(fill = "Deaths") +
+    theme_void()
+  return(ct.plot)
+}
+
+ct.choropleth(new_death_in_county)
+```
+Explain ways to improve the plot to make it more informative
+*The plot would be more informative if the counties were labeled by their names or using tooltips to highlight the counties when mouse is hovered*
+  
+```{r}
+library(maps)
+ct.choropleth <- function(df){
+  # generate county and state boundaries
+  ct.state <- map_data("state", region = "connecticut")
+  ct.county.df <- map_data("county", region = "connecticut")
+  # convert county names to lower case
+  county.df <- mutate_all(df, funs(tolower))
+  # merge data frames to pass a single data frame to ggplot
+  choropleth <- inner_join(ct.county.df, county.df, by = "subregion")
+  # convert counts to type numeric
+  choropleth$count <- as.numeric(choropleth$count)
+  # generate choropleth
+  ct.plot <- ggplot(choropleth, aes(long, lat, group = group)) +
+    geom_polygon(aes(fill = count), alpha = 0.75, color = "white") +
+    geom_polygon(data = ct.county.df, colour = "white", fill = NA) +
+    geom_polygon(data = ct.state, color = "black", fill = NA)+
+    scale_fill_gradient2(low = "yellow", mid = "orange", high = "red") +
+    ggtitle("Opiod deaths in Connecticut by county") +
+    labs(fill = "Deaths") +
+    theme_void()
+  return(ct.plot)
+}
+
+ct.choropleth(new_death_in_county)

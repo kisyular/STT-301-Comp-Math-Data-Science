@@ -1,0 +1,183 @@
+---
+title: "STT 301: Graphics with ggplot2"
+author: "Shawn Santo"
+date: "October 3, 2018"
+output: html_document
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+```
+
+
+## Introduction
+
+---
+
+**Learning objectives:**
+
+  - scatter plots with `ggplot2`
+    - modify labels
+    - add text
+    - modify axes
+    - aesthetics
+
+---
+
+The package `ggplot2` has many options and capabilities so you will probably find the following `ggplot2` help resources useful:
+
+  1. [http://docs.ggplot2.org/current/](http://docs.ggplot2.org/current/)
+  2. the graphics portion of the R cookbook site at http://www.cookbook-r.com/Graphs/
+  3. http://zevross.com/blog/2014/08/04/beautiful-plotting-in-r-a-ggplot2-cheatsheet-3/
+  4. RStudio "Data Visualization with ggplot2" cheatsheet
+  4. Google
+
+```{r}
+library(ggplot2)
+```
+
+
+We will again use the gapminder data. To read the data into R and remind yourself of the structure use the following code. Make sure the .Rdata file
+is in your working directory.
+
+```{r, cache = TRUE}
+load("gapminder.Rdata")
+str(gapminder)
+```
+
+Our initial focus will be on scatter plots. Next class we will learn about other types of graphical capabilities in `ggplot2`. You will first see how certain aesthetics and modifications can be made with `ggplot2`. After, you will apply what you learned to recreate some plots.
+
+*******************
+
+## Scatter Plots - Gapminder data
+
+First, we draw a simple scatter plot of life expectancy versus GDP. 
+
+```{r}
+ggplot(data = gapminder) + 
+  geom_point(mapping = aes(x = gdpPercap, y = lifeExp))
+```
+
+The form of the scatter plot suggests that a log transformation might be helpful. One possibility is to include the transformation in the initial `aes` specification.
+
+```{r}
+ggplot(data = gapminder) + 
+  geom_point(mapping = aes(x = log10(gdpPercap), y = lifeExp))
+```
+
+This looks okay, but the scale on the x axis is now in "log" units. It might be better to use the original units.
+
+```{r}
+ggplot(data = gapminder) + 
+  geom_point(mapping = aes(x = gdpPercap, y = lifeExp)) + 
+  scale_x_log10()
+```
+
+An alert viewer of the graph will notice that the distance between 1000 and 10000 is the same as the distance between 10000 and 100000 and realize that the percapita GDP has been log scaled. But it doesn't hurt to indicate this explicitly by changing the label on the x axis. As with many things in R, there are several ways to do this. 
+
+```{r}
+ggplot(data = gapminder) + 
+  geom_point(mapping = aes(x = gdpPercap, y = lifeExp)) + 
+  scale_x_log10(name = "per capita GDP (log10 scaled)")
+
+ggplot(data = gapminder) + 
+  geom_point(mapping = aes(x = gdpPercap, y = lifeExp)) + 
+  scale_x_log10() +
+  xlab("per capita GDP (log10 scaled)")
+
+ggplot(data = gapminder) + 
+  geom_point(mapping = aes(x = gdpPercap, y = lifeExp)) + 
+  scale_x_log10() +
+  labs("per capita GDP (log10 scaled)")
+```
+
+All are fine ways to change the x axis label. Let's use the third method, also change the y axis label, and save this part of the graphic specification so we don't have to keep retyping it. Note that `aes(x = gdpPercap, y = lifeExp)`
+is now inside `ggplot`. The result is the same, but now we can add point
+aesthetics without having to change the base of our plot.
+
+```{r}
+p <- ggplot(data = gapminder, mapping = aes(x = gdpPercap, y = lifeExp)) +  
+  scale_x_log10() + 
+  labs(x = "per capita GDP (log10 scaled)", y = "life expectancy")
+
+p + geom_point()
+```
+
+Using `p` from above as a starting point, produce each of the plots below.
+
+#### Plot a
+
+```{r echo=T}
+p + geom_point(aes(color = continent))
+```
+
+#### Plot b
+
+```{r echo=T}
+p + geom_point(size = 1, aes(color = continent)) + 
+  stat_smooth(method = lm, se = FALSE) + 
+  labs(title = "Plot with least squares line")
+```
+
+#### Plot c
+
+```{r echo=T}
+p + geom_point(size = 1, aes(color = continent, shape = continent)) + 
+  labs(title = "Plot with different shapes and colours")
+```
+
+*************************
+
+## Scatter Plots - Diamonds data
+
+The ggplot2 package comes with a data set called `diamonds`. Let's look at it below. To obtain further details type `?diamonds` in your console window.
+
+```{r}
+str(diamonds)
+```
+
+Produce each of the following plots.
+
+#### Plot a
+
+```{r echo = T}
+diamond.plot <- ggplot(data=diamonds, aes(x=carat, y=price))
+diamond.plot + geom_point()
+```
+
+
+#### Plot b
+
+```{r echo = T}
+diamond.plot <- ggplot(data=diamonds, aes(x=carat, y=price, color = color))
+diamond.plot + geom_point() + labs(y = "Price ($)", x = "Carat", title = "Diamond Carat vs Price", subtitle = "data from ggplot2")
+```
+
+
+#### Plot c
+
+```{r echo = T}
+diamond.plot <- ggplot(data=diamonds, aes(x=carat, y=price, shape = cut, colour = color))
+diamond.plot + geom_point()+ labs(y = "Price ($)", x = "Carat", title = "Diamond Carat vs Price", subtitle = "data from ggplot2")
+```
+
+#### Plot d
+
+```{r echo = T}
+diamond.plot <- ggplot(data=diamonds, aes(x=carat, y=price, colour = color))
+diamond.plot + geom_point() + facet_wrap(~cut) + 
+  labs(y = "Price ($)", x = "Carat")
+```
+
+#### Plot e
+
+```{r echo = T}
+diamond.plot <- ggplot(data=diamonds, aes(x=carat, y=price, colour = cut))
+diamond.plot + geom_point() + facet_wrap(~clarity, nrow = 2) + 
+  labs(y = "Price ($)", x = "Carat")
+```
+
+
+
+
+

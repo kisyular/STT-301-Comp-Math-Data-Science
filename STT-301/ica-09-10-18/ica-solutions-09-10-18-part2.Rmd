@@ -1,0 +1,297 @@
+---
+title: 'STT 301'
+author: "Shawn Santo"
+date: "September 5, 2018"
+output: html_document
+---
+
+```{r include=FALSE}
+library(knitr)
+load("baseball.Rdata")
+```
+
+
+## Introduction
+
+---
+
+**Learning objectives:**
+
+  + Functions for descriptive statistics
+  + Variable assignment
+  + Data subsetting
+
+---
+
+The `Lahman` package in `R` contains a plethora of baseball data. The package 
+is used extensively in the book, "Analyzing Baseball Data with R", by Max Marchi
+and Jim Albert (2013). This tutorial will use a subset of data from the 
+`Lahman` package to expose you to some basic descriptive statistical functions
+and data subsetting.
+
+The subset of data from the `Lahman` package is automatically loaded at the
+start of this tutorial. You will learn how to read in different data files later.
+
+## Data analysis basics - part 1
+
+### Accessing data
+
+To see all the objects loaded from the baseball data set in this tutorial 
+use the function `ls()`. Function `ls()` lists all the objects in the current
+environment. However, since only a subset of the `Lahman` package is loaded,
+`ls()` will only show those objects corresponding to the baseball data set.
+
+```{r}
+ls()
+```
+
+To access the content of an object in `R` use the object's name.
+Keep in mind that `R` is case sensitive. Thus, we need to type an object's name
+exactly as it appears.
+
+Above we see the object `JimRiceBA`. Run the code below to see the contents of
+`JimRiceBA`.
+
+```{r}
+JimRiceBA
+```
+
+### Descriptive statistics
+
+The names of many functions in `R` are self-explanatory. To compute the minimum,
+maximum, and mean for Jim Rice's career batting average we can use the
+corresponding functions given below.
+
+
+```{r}
+min(JimRiceBA)
+max(JimRiceBA)
+mean(JimRiceBA)
+```
+
+To find the year in which Jim Rice had his lowest batting average and
+the year in which he had his highest batting average,
+we can make use of the functions `which.min()` and `which.max()`, respectively.
+
+```{r}
+which.min(JimRiceBA)
+which.max(JimRiceBA)
+```
+
+Let's examine how Rice's batting average changed throughout his career. First, we
+compute year-over-year differences, then view the results. Second, we will look at
+which year he had the largest increase and which year he had the largest decrease.
+
+```{r}
+# compute differences
+JimRiceBA_diffs <- diff(JimRiceBA, lag = 1)
+JimRiceBA_diffs
+
+# find years
+which.max(JimRiceBA_diffs)
+which.min(JimRiceBA_diffs)
+```
+
+The `#` symbol was used to add comments. `R` does not execute anything 
+following `#`. Use `#` for code documentation to explain to
+others why you are doing what you are doing. Good code documentation is also 
+beneficial for your future self.
+
+## Data analysis basics - part 2
+
+### Summary statistics with two variables
+
+Recall that the correlation measures the linear strength between two
+quantitative variables. Let's look at the correlation between each pair of
+available variables for Jim Rice: batting average, home runs, and RBIs.
+
+```{r}
+cor(JimRiceBA, JimRiceHR)
+cor(JimRiceBA, JimRiceRBI)
+cor(JimRiceHR, JimRiceRBI)
+```
+
+To view a simple plot of Rice's home runs versus his RBIs we can use the
+`plot()` function.
+
+```{r}
+plot(JimRiceHR, JimRiceRBI)
+```
+
+To learn more about Jim Rice click [here](https://en.wikipedia.org/wiki/Jim_Rice).
+
+## Exercise 1
+
+In the following exercises you use the data on [Ted Williams](https://en.wikipedia.org/wiki/Ted_Williams). 
+
+To remind yourself of the variable names use the function `ls()`.
+
+### Part a
+
+Use the `length()` function to determine how many seasons Ted Williams played.
+
+```{r}
+length(TedWilliamsBA)
+```
+
+### Part b
+
+What season did Ted Williams have his highest batting average?
+
+```{r}
+which.max(TedWilliamsBA)
+```
+
+
+### Part c
+
+What was Williams' highest batting average?
+
+```{r}
+max(TedWilliamsBA)
+```
+
+
+### Part d
+
+What was Williams' career mean batting average?
+
+```{r}
+mean(TedWilliamsBA)
+```
+
+
+### Part e
+
+What was the correlation between Williams' home runs and RBIs? Was it higher than
+Jim Rice's correlation?
+
+```{r}
+cor(TedWilliamsHR, TedWilliamsRBI)
+cor(JimRiceHR, JimRiceRBI)
+```
+Jim Rice had a high correlation between home runs and RBIs.
+
+### Part f
+
+What was the largest absolute change in Williams' RBIs year-over-year?
+
+```{r}
+tw_rbi_diff <- diff(TedWilliamsRBI, lag = 1)
+max(abs(tw_rbi_diff))
+```
+
+
+## Data frames
+
+### Subsetting
+
+The `R` objects such as `JimRiceBA` and `TedWilliamsHR` are known as vectors.
+For now, think of a vector as data of the same form corresponding to one variable.
+In the following section and exercises you will work with data frames. Think of
+a data frame as table or a data set you would view in an excel spreadsheet. 
+We will formally learn about vectors, data frames, and other data types of `R` 
+later.
+
+Among the objects loaded at the start of this tutorial was the data frame
+`batting_stats`. Each column of the data frame corresponds to a variable. Let's
+see how many variables are in `batting_stats` as well as how many rows the data
+frame contains.
+
+```{r}
+names(batting_stats)
+dim(batting_stats)
+```
+
+We see that `batting_stats` has 97,889 rows and 32 variables, where the variable
+names are provided by the `names()` function.
+
+One way to subset a data frame is to use `[ , ]` and specify row and column
+indices.
+
+```{r}
+batting_stats[90000, c(32, 25, 13, 14)]
+batting_stats[c(90000, 91000, 92000), c(32, 25, 13, 14)]
+```
+
+A more informative and efficient way to subset a data frame is to use the 
+`subset()` function. Let's look at Jimmy Rollin's batting average, home runs,
+and RBIs.
+
+```{r}
+jroll <- subset(batting_stats, playerName == "Jimmy Rollins")
+jroll[, c(32, 25, 13, 14)]
+```
+
+Suppose we are interested in subsetting `batting_stats` based on the players 
+with a batting average greater than 0.400 and who played in a minimum of
+100 games.
+
+```{r}
+over400 <- subset(batting_stats, BA > 0.400 & G >= 100)
+over400[, c("playerName", "BA", "G", "yearID")]
+```
+
+Based on the past three examples carefully note:
+
+  1. columns can be subset by the column number or name,
+  2. not specifying an index before the comma in `[ , ]` returns all rows,
+  3. not specifying an index after the comma in `[ , ]` returns all columns,
+  4. to specify a variable is equal to a given value use `==` and not `=`.
+  
+## Exercise 2
+
+You will use the `batting_stats` data frame to answer the questions that follow.
+
+### Part a
+
+  i. Extract all the data corresponding to Lou Gehrig, and assign the subsetted 
+     data set to an object named `lg`.
+  ii. Based on the `lg` data frame, display the player's name, home runs, 
+      batting average, RBIs, and year.
+  iii. Display the same data as in (ii), but only for the years with at least 30
+       home runs.
+
+```{r}
+lg <- subset(batting_stats, playerName == "Lou Gehrig")
+lg_lite <- lg[, c("playerName", "HR", "BA", "RBI", "yearID")]
+lg_lite
+
+subset(lg_lite, HR >= 30)
+```
+
+
+### Part b
+
+  i. Extract all the rows from `batting_stats` where the number of home runs is 
+     at least 50 and the batting average is above 0.300. Assign this subsetted
+     data to an object named `power_plus_average`.
+  ii. Which players achieved this feat?
+  iii. In what years did these achievements occur?
+  
+```{r}
+power_plus_average <- subset(batting_stats, HR >= 50 & BA > 0.300)
+power_plus_average[, "playerName"]
+power_plus_average[, "yearID"]
+```
+
+  
+### Part c
+
+How many players hit more than 80 home runs in a single season?
+
+```{r}
+subset(batting_stats, HR > 80)
+```
+
+
+### Part d
+
+What year did Barry Bonds hit a record-breaking 73 home runs for the Giants?
+
+```{r}
+bonds <- subset(batting_stats, playerName == "Barry Bonds" & HR == 73)
+bonds[, "yearID"]
+```
+
+

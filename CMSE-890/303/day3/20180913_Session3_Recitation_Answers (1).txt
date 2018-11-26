@@ -1,0 +1,18 @@
+cd CMSE890Sec304/
+mkdir Session3
+cd Session3/
+wget ftp://ftp.ensembl.org/pub/release-93/fasta/caenorhabditis_elegans/dna/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz
+gunzip Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz 
+more Caenorhabditis_elegans.WBcel235.dna.toplevel.fa 
+ls
+gunzip *.gz
+ls -lah
+diff Caenorhabditis_elegans.WBcel235.dna.toplevel.fa Caenorhabditis_elegans.WBcel235.dna.toplevel_1.fa 
+diff Caenorhabditis_elegans.WBcel235.dna.toplevel_1.fa Caenorhabditis_elegans.WBcel235.dna.toplevel_2.fa > diff_Celegans_1_2.txt
+emacs Caenorhabditis_elegans.WBcel235.dna.toplevel.fa 
+Control-s, >
+Esc, %, >, Enter, >chr, Enter
+vi Caenorhabditis_elegans.WBcel235.dna.toplevel.fa
+/>
+:g/>/s//>chr/g
+gzip *.fa
