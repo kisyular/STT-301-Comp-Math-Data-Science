@@ -1,0 +1,129 @@
+---
+title: "STT 301: Web Scraping"
+author: "Shawn Santo"
+date: "November 26, 2018"
+output: html_document
+---
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(fig.path='Figs/', warning=FALSE, message=FALSE, dev = "png", comment = NA)
+```
+
+## Introduction
+
+Learning Objectives
+
+  - web scraping
+  - SelectorGadget
+  - rvest
+  
+*************************
+
+```{r}
+library(rvest)
+library(tidyverse)
+```
+
+## Kenpom
+
+### Scrape
+
+  1. We will scrape some college basketball statistics using SelectorGadget. 
+  The advanced metrics are available at: [https://kenpom.com/](https://kenpom.com/).
+  Use SelectorGadget along with the following functions in the `rvest` 
+  package: `read_html`, `html_nodes`, `html_text` to scrape the large table on 
+  the main page. Only scrape the data and not the column headers. Save the 
+  result as `kenpom.text`. The length of kenpom.text should be 7413.
+
+```{r}
+kenpom.url <- "https://kenpom.com/"
+kenpom.text <- read_html(kenpom.url)
+
+kenpom.text <- kenpom.text %>% 
+    html_nodes(css = "table") %>%
+    html_table(fill = TRUE)
+```
+
+### Organize the data
+
+  1. We will organize the 353 NCAAB teams into a 353 by 21 matrix. We will then 
+  remove the odd columns 7 through 21. These columns represent the rank 
+  corresponding to the adjacent statistic. If you look on 
+  [https://kenpom.com/](https://kenpom.com/) you will see small numbers next to 
+  some of the statistics such as AdjO, AdjD, etc. This is what we are removing. 
+  Once you have completed the above R chunk you may remove the chunk 
+  option `eval = FALSE` below.
+
+```{r eval = FALSE}
+kenpom.mat <- matrix(kenpom.text, 
+                     nrow = length(kenpom.text)/21, 
+                     ncol = 21, 
+                     byrow = TRUE)
+
+kenpom.mat <- kenpom.mat[,-c(seq(7, 21, by = 2))]
+kenpom.mat
+```
+
+  2. Create a data frame of `kenpom.mat` and save the result as `kenpom`. 
+  Be sure to specify `stringsAsFactors = FALSE`. Assign the column names 
+  as are given below. Look at the structure of `kenpom`. You can also 
+  turn `kenpom` into a tibble if you like. Once you have completed the 
+  above R chunk you may remove the chunk option `eval = FALSE` below.
+
+```{r eval = FALSE}
+
+names(kenpom) <- c("rank", "team", "conf", "w_l", "adjem", "adjo", 
+                   "adjd", "adjt", "luck", "adjem_sos", "oppo_sos",
+                   "oppd_sos", "adjem_nc")
+
+```
+
+### Manipulate the data
+
+  1. Use the `separate` function to turn the `w_l` column 
+     into two columns: "wins", "losses".
+  2. Change the variable type of `rank` and `wins:adjem_nc` from 
+     character to double (numeric).
+  3. Add an additional variable to `kenpom` called `win_percentage`. 
+     `win_percentage` is the number of wins divided by total games 
+     played (wins + losses).
+
+  
+```{r}
+
+```
+
+### Team comparison
+
+  1. Create a 353 by 353 matrix that represents the difference between each 
+     team's `adjem` metric for all 353 teams. `adjem` is the difference between 
+     a team's offensive and defensive efficiency. Save the result as 
+     `kenpom.adjem.mat`. The diagonal of the resulting matrix should be 0. 
+     The `outer` function in R will allow you to do this in one line of code. 
+     I give a simple example below.
+  2. Add the team names to the rows and columns of `kenpom.adjem.mat`. 
+  3. On Tuesday, 11/27, Michigan State plays Louisville. Use your matrix 
+     `kenpom.adjem.mat` to find the difference in `adjem` between 
+     "Michigan St." and "Louisville".
+  
+```{r}
+# an example with outer function
+outer(X = c(1:4), Y = c(1:4), FUN = "-")
+
+```
+
+For details on some of the advanced metrics see: [https://kenpom.com/blog/ratings-methodology-update/](https://kenpom.com/blog/ratings-methodology-update/).
+
+*************************
+## IMDb
+
+### Movie data frame
+
+  1. Expand on the IMDb top 100 working example of the lecture slides. 
+  Scrape the movie run time, gross dollars, and the MPAA film rating. 
+  Add these variables to the `imdb` data frame created in the working 
+  example of the lecture slides.
+  2. Use `ggplot` to create a graphic of your choice based on the 
+  `imdb` data frame. Note, you may have to clean the data prior to using 
+  `ggplot` depending on what variables you want to use.
+  

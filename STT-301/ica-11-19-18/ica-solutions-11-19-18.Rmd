@@ -1,0 +1,311 @@
+---
+title: "STT 301: Text Data"
+author: "Shawn Santo"
+date: "November 19, 2018"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(fig.path='Figs/', warning=FALSE, message=FALSE, dev = "png", comment = NA)
+```
+
+### Introduction
+
+Learning Objectives
+  - string/character manipulation functions
+  - regular expressions
+  
+*************************
+
+### Number of characters
+
+To determine the number of characters in a string use `nchar` and not the `length` function. How many characters are in the following?
+
+  1. "coffee"
+  2. "supercalifragilisticexpialidocious"
+  3. "what is the character count here?"
+  4. "whatisthecharactercounthere?"
+
+```{r}
+nchar("coffee")
+nchar("supercalifragilisticexpialidocious")
+nchar("what is the character count here?")
+nchar("whatisthecharactercounthere?")
+```
+
+`nchar` can also find the number of characters in each element of a vector. Use `nchar` on a character vector of your choice.
+
+```{r}
+colors <- c("red", "blue", "orange", "purple")
+nchar(colors)
+```
+
+
+### Getting a substring
+
+```{r}
+phrase <- "extract a substring from this phrase"
+
+substr(x = phrase, start = 1, stop = 7)
+
+substr(phrase, 1, 8)
+
+substr(phrase, 5, 20)
+
+```
+
+`substr` also works on a vector. 
+
+```{r}
+presidents <- c("Clinton", "Bush", "Regan", "Carter")
+
+# extract the first two letters from each word
+
+substr(presidents, 1, 2)
+
+# extract the last two letters from each word
+
+substr(presidents, nchar(presidents) - 1, nchar(presidents))
+
+# we can grab the first, first 2, first 3, etc
+
+substr(x = presidents, start = 1, stop = 1:4)
+```
+
+`substr` also allows us to replace characters.
+
+```{r}
+substr(phrase, 1, 2) <- "at"
+phrase
+
+# try and replace attract with "grab"
+
+substr(phrase, 1, 7) <- "grab"
+phrase
+
+```
+
+### Splitting strings
+
+`strsplit` allows you to separate a string. Do you remember the structure that is returned? For now, use the argument `fixed = TRUE` and do not use regular expressions.
+
+```{r}
+big.cats <- "lion, tiger, jaguar, cougar, leopard, snow leopard, cheetah"
+
+# split big.cats at each comma 
+
+strsplit(x = big.cats, split = ",", fixed = TRUE)
+
+# split big.cats at each comma, but make sure the result is a vector
+
+unlist(strsplit(x = big.cats, split = ",", fixed = TRUE))
+
+# split big.cats at each space
+
+unlist(strsplit(big.cats, split = " ", fixed = TRUE))
+
+small.cats <- "serval, caracal"
+
+# split the vector c(big.cats, small.cats) at each comma
+
+strsplit(c(big.cats, small.cats), split = ",", fixed = TRUE)
+
+# we can also split by each character
+
+strsplit(x = small.cats, split = "")
+
+# split the string small.cats at each "a"
+
+strsplit(small.cats, split = "a", fixed = TRUE)
+
+```
+
+### Regular expression (Regex)
+
+The true power of `strsplit` or `grep` is realized when we use a regular expression or a regex.
+
+- A **regular expression** or **regex** is a specially structured string that allow us to match certain patterns occurring in text.
+- Note: regexes follow a well-defined set of rules, independent of the R language.
+- Any string defines a valid regex. To get us started, we'll consider **literals**, which are just strings that we want to match, literally.
+    - "fly" matches "superfly", "why walk when you can fly"  
+    - "fly" does not match "time flies like an arrow", "fruit flies like bananas"
+- OR of two regexes is a regex.
+    - "fly|flies" tries to match "fly" or "flies" 
+- Concatenation of regexes is a regex.
+    - "(time|fruit) (fly|flies)" tries to match "time" or "fruit", then a space, then "fly" or "flies"
+- Parentheses define groups
+
+To match a regular expression or regex we can use the `grep` function. Recall, that `grepl` returns a logical value instead of a location.
+
+```{r}
+str.vec = c("time flies when you're having fun in 301",
+            "time does not fly in 301, because it's not fun",
+            "the Flyers are a hockey team in Philly")
+
+grep(pattern = "fly", x = str.vec) 
+
+grep("fly", str.vec, value = TRUE)
+
+grep("Fly|flies", str.vec, value = TRUE)
+
+# use grep to find the element in the character vector that matches "time"
+
+grep("time", str.vec)
+```
+
+```{r}
+str.vec.2 = c("time flies when you're having fun in 301",
+              "fruit flies when you throw it",
+              "a fruit fly is a beautiful creature",
+              "how do you spell fruitfly?")
+
+# what is the difference between each of these below?
+
+grep("(time|fruit)(fly|flies)", str.vec.2, value=TRUE)
+grep("(time|fruit) (fly|flies)", str.vec.2, value=TRUE)
+grep("(time|fruit)  (fly|flies)", str.vec.2, value=TRUE)
+```
+
+**Metacharacters are special characters that have a special meaning, and are not interpreted literally.**
+
+- Important example: square braces, used to indicate that we want to match anything inside the square braces, **for one character position.** 
+- "[abcde]" matches the "a" in "Shawn"
+    - "[369]" matches the "3" in "STT 315"
+    - "[aeiou]" tries to match any lower case vowel
+- A dash inside square braces is used to denote a range. 
+    - "[a-e]" is the same as "[abcde]"
+    - "[0-9]" is the same as "[0123456789]"
+- Rules for combining regexes apply as before. 
+    - "(Shawn|Santo) [A-J]512" tries to match "Shawn" or "Santo", then a space, then any upper case letter between A and J, then the number 512
+
+**A summary of the R documentation on regex. See `?regex`.**    
+
+- "[[:alnum:]]" tries to match any alphanumeric character (same as "[a-zA-Z0-9]")
+- "[[:punct:]]" tries to match any punctuation mark
+- "[[:space:]]" tries to match any white space character (including tabs and line breaks)
+- A caret inside square braces negates what follows. 
+    - "[^0-9]" tries to match anything but a number between 0 and 9
+    - "[^aeiou]" tries to match anything but a lower case vowel
+- A period "." tries to match any character (don't even need square braces)
+
+
+Think about what is happening in each of the below uses of the `grep` function. Note the regular expressions that are used.
+
+
+```{r}
+str.vec.3 = c("C409WH","c409WH","Wells.Hall","C409")
+
+grep("[A-Z][0-9]", str.vec.3, value=TRUE)
+
+grep("[a-z][0-9][0-9][0-9][A-Z]", str.vec.3, value=TRUE)
+
+grep("[^0-9]", str.vec.3, value=TRUE)
+
+grep("[^0-9][^0-9]", str.vec.3, value=TRUE)
+
+grep("[^0-9][a-z]", str.vec.3, value=TRUE)
+
+grep("[A-Z][^0-9][^0-9][0-9]", str.vec.3, value=TRUE)
+
+grep("[:punct:]", str.vec.3, value = TRUE)
+
+grep("[[:punct:]]", str.vec.3, value = TRUE)
+```
+
+Use regular expressions to split `big.cats` at
+  
+  1. each "e".
+  2. each vowel.
+  
+```{r}
+strsplit(big.cats, split = "[e]")
+
+strsplit(big.cats, split = "[aeiou]")
+```
+
+Use regular expressions to split `str.vec3` at
+
+  1. each number.
+  2. each lower case letter.
+  3. each period.
+  4. two consecutive numbers.
+  5. where a capital letter immediately preceeds a digit
+  
+
+```{r}
+strsplit(str.vec.3, split = "[0-9]")
+
+strsplit(str.vec.3, split = "[a-z]")
+
+strsplit(str.vec.3, split = "[.]")
+
+strsplit(str.vec.3, split = "[0-9][0-9]")
+
+strsplit(str.vec.3, split = "[A-Z][0-9]")
+
+```
+
+
+### A working example
+
+Let's look at the all-time men's top 100m dash times. Ultimately, we want to extract the top 1000 times from this all-time list.
+
+```{r}
+sprint.times <- readLines("http://www.alltime-athletics.com/m_100ok.htm")
+head(sprint.times)
+sprint.times[81:88]
+length(sprint.times)
+```
+
+Use `grep` to help find the first element in `sprint.times` that corresponds to "Usain Bolt". Save this as `sprint.start`.
+```{r}
+sprint.start <- min(grep("Usain Bolt", sprint.times))
+```
+
+Only keep the elements in `sprint.times` between `sprint.start` and 999 + `sprint.start`, inclusive. Save the object as `sprint.t1000`.
+
+```{r}
+sprint.t1000 <- sprint.times[sprint.start:(999+sprint.start)]
+length(sprint.t1000)
+
+```
+
+Now, to extract the times we will use the `regmatches` function in R along with a regex time pattern that we create. Once you have done the above parts you can remove the chunk option of `eval = FALSE`.
+
+`regexpr` returns an integer vector of the same length as `sprint.t1000` giving the starting position of the first match.
+
+```{r }
+time.pattern = "[[:space:]]+(9|(10))\\.[0-9]{2}([[:space:]]|A)"
+
+match.data <- regexpr(time.pattern, sprint.t1000)
+
+sprint.t1000 <-  regmatches(sprint.t1000, m = match.data)
+
+length(sprint.t1000) # length should be 1000
+
+head(sprint.t1000)
+```
+
+We need to clean this up a little more. Look at element 135 and you will see an A appended to the time. This is to signify wind assistance. If you use `as.numeric` that value will result in NA. Let's try one more application of `regmatches`. Again, remove the chunk option `eval = FALSE` once you have done the above parts.
+
+```{r }
+sprint.t1000 = as.numeric(regmatches(sprint.t1000, regexpr("(9|(10))\\.[0-9]{2}", sprint.t1000)))
+
+length(sprint.t1000) # length should be 1000
+
+summary(sprint.t1000)
+```
+
+Finally, we have cleaned up the data. Use the `sprint.t1000` to create a plot in ggplot of time versus rank.
+
+```{r}
+library(ggplot2)
+
+top.times <- data.frame(rank=c(1:1000), time=sprint.t1000)
+
+ggplot(data = top.times, mapping = aes(x = rank, y = time, colour = time)) + geom_point()
+```
+
+

@@ -1,0 +1,91 @@
+---
+title: "STT 301 Homework Assignment 5"
+author: "Shawn Santo"
+date: "November 21, 2018"
+output:
+  html_document: default
+  pdf_document: default
+---
+***********************
+
+### Homework Assignment 5 is due Monday, December 3 at 12:40pm EST.
+
+***********************
+
+### Instructions
+
+This assignment is to be done in groups using R Markdown. 
+Groups are set as your project groups. 
+One Rmd file per group should be submitted to the 
+dropbox folder by the above deadline with each individual's name listed in the 
+"author" section. 
+
+Everyone in the group will earn the same grade except for free-riders.
+
+### Rubric
+
+- **Total**: 10 points.
+- **Correctness**: Point values for the question and their respective parts 
+  are listed. Partial credit is available. Hard-coded solutions will
+  not receive full credit.
+- **Knitting**: Deduction of 0.5 points if the Rmd file does not knit for 
+  any reason.
+- **Style**: Use a third-level header to off-set each question in your 
+  solutions - as is done below. For questions with multiple parts (part a,
+  part b, etc), use 
+  fourth-level headers to off-set the parts in your solutions - as is done 
+  below. Use code comments for subsubparts. 
+  Coding style is very important. You will receive a deduction of up 
+  to 1.0 point if you do not adhere to good coding style. What I am looking for
+  in terms of style includes:
+    - appropriate variable use and naming
+    - appropriate function use
+    - good code commenting
+    - consistent code syntax
+- **Code documentation**: Code should be well documented.
+- **Late Submission**: Late homework will not be accepted.
+    
+*Please do not include the above Rubric, Instructions, and homework deadline*
+*sections in your solutions.*
+
+***********************
+
+
+```{r echo=FALSE, global_options}
+knitr::opts_chunk$set(comment = NA, tidy = TRUE)
+```
+
+### Question 1 (10 points)
+
+The goal of this assignment is to develop a word cloud as in step 5 of this
+[word cloud tutorial](http://www.sthda.com/english/wiki/text-mining-and-word-cloud-fundamentals-in-r-5-simple-steps-you-should-know). You do not need to follow all the steps
+exactly because you will work with different data. Steps 4 and 5 are most salient.
+
+The [Unabomber](https://en.wikipedia.org/wiki/Ted_Kaczynski) was identified, captured, and convicted in part through
+linguistic analysis. His published manifesto was linked to earlier writings
+provided by family members. Ted Kaczynski's full manifesto is available [here](https://www.josharcher.uk/static/files/2018/01/Industrial_Society_and_Its_Future-Ted_Kaczynski.txt). Use
+the text analysis functions we learned to create a word cloud of the Unabomber's manifesto. Be sure to remove numbers and 
+common words such as "the", "and", "a", "an", and so on. Also, put all
+text in lowercase. Remember to document
+your code well.
+
+
+#### Part 1 - read in manifesto
+
+```{r}
+
+```
+
+#### Part 2 - clean and organize manifesto
+
+```{r}
+
+```
+
+#### Part 3 - create word cloud
+
+```{r}
+
+```
+
+

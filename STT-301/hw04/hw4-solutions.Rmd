@@ -1,0 +1,212 @@
+---
+title: "STT 301 Homework Assignment 4 Solutions"
+author: "Shawn Santo"
+date: "November 1, 2018"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r echo=FALSE, global_options}
+knitr::opts_chunk$set(comment = NA, tidy = TRUE)
+```
+
+```{r}
+library(ggplot2)
+```
+
+
+### Question 1 (1 point)
+
+Use the built-in R functions to generate 10 random variables for each of 5 different probability distributions. You may choose to simulate the random variables from any distribution except the Normal distribution and discrete uniform distribution. Parameter values may be chosen at your discretion.
+
+```{r}
+rt(10, df = 5)
+
+rbeta(10, shape1 = 3, shape2 = 6)
+
+rgeom(10, prob = 0.90)
+
+rpois(10, lambda = 10)
+
+rchisq(10, df = 4)
+```
+
+
+***********************
+
+### Question 2 (2 points)
+
+Conduct a simulation to answer the question below that was initially posed by Antoine Gombaud (a famous gambler in the 17th century).
+
+Which is more likely:
+
+ a. getting at least one 6 when rolling a single fair six-sided die 4 times,
+ b. getting at least one pair of sixes when two fair six-sided dice are thrown 24 times.
+ 
+The number of simulation replications you choose is at your discretion, but if you choose a number too small the results will not be accurate.
+
+```{r}
+# simulate one trial for part a
+event.a <- function(){
+  rolls <- sample(c(1:6), 4, replace = TRUE)
+  return(sum(rolls == 6) > 0)
+}
+
+# find empirical probability
+set.seed(3)
+emp.a <- mean(replicate(100000, event.a()))
+emp.a
+
+# simulate one trial for part b
+event.b <- function(){
+  
+  sum.rolls <- sample(c(2:12), 24, 
+                      replace = TRUE, 
+                      prob = c(1:6 * 1/36, sort(1:5 * 1/36, decreasing = TRUE)))
+  return(sum(sum.rolls == 12) > 0)
+}
+
+# find empirical probability
+set.seed(3)
+emp.b <- mean(replicate(100000, event.b()))
+emp.b
+
+# check which event is more likely (not required)
+emp.a > emp.b
+
+# we can compute theoretical probabilities using dbinom (not required)
+
+theoretical.a <- 1 - dbinom(x = 0, size = 4, prob = 1/6)
+theoretical.b <- 1 - dbinom(x = 0, size = 24, prob = 1/36)
+
+c(emp.a, theoretical.a)
+c(emp.b, theoretical.b)
+```
+
+***********************
+
+### Question 3 (3 points)
+
+Conduct a simulation to answer the following questions related to the birthday problem or birthday paradox.
+
+  a. What is the probability of at least two people sharing the same birthday (month and day) from a random sample of 23 individuals?
+  b. What is the probability of at least two people sharing the same birthday (month and day) from a random sample of 70 individuals?
+  c. Create a plot using `ggplot` with the number of individuals on the x-axis and the probability of at least one pair on the y-axis. You should simulate the probability of at least two people sharing the same birthday for each number of individuals from 2 to 100.
+  
+You may ignore leap year and assume 365 days per year. The number of simulation replications you choose is at your discretion, but if you choose a number too small the results will not be accurate.
+
+```{r}
+# simulate birthdays and check for a match
+bday.match <- function(n){
+  days <- sample(c(1:365), n, replace = TRUE)
+  match <- length(unique(days)) < n
+  return(match)
+}
+
+# check probability of match for 23 people
+set.seed(12)
+emp.23 <- mean(replicate(100000, bday.match(23)))
+emp.23
+
+# check probability of match for 70 people
+set.seed(12)
+emp.70 <- mean(replicate(100000, bday.match(70)))
+emp.70
+
+nmat <- matrix(c(2:100))
+
+set.seed(12)
+event.results <- replicate(10000, apply(nmat, 1, bday.match))
+emp.results <- apply(event.results, 1, mean)
+
+emp.results.df <- data.frame(n = nmat, emp.prob = emp.results)
+
+ggplot(data = emp.results.df, mapping = aes(x = n, y = emp.prob)) + 
+  geom_point(size = 1.25) +
+  labs(x = "number of individuals", 
+       y = "empirical probability", 
+       title = "Empirical Probabilities for the Birthday Problem") + 
+  geom_segment(aes(x = 23, xend = 23, y = 0, 
+                   yend = emp.results.df[22,2]), color = "purple", size = 1.1) +
+  geom_segment(aes(x = 70, xend = 70, y = 0, 
+                   yend = emp.results.df[69,2]), color = "purple", size = 1.1)
+```
+
+
+***********************
+
+### Question 4 (3 points)
+
+Suppose you have \$100 to play a casino game. Each trial of the game is independent. You are smart and figured out how to shift the odds of the game
+in your favor. On each trial, the probability you win is 0.55, and the
+probability you lose is 0.45. When you win, your payoff is double the bet amount. When you lose, you lose the risked amount. You plan to play the game 1,000 times. In this question you will investigate what is the optimal proportion of your money you should risk for each trial of the game. Assume that the proportion is
+the same for all 1,000 times you play.
+
+  a. What is your average bankroll after 1,000 game-plays if you risk 
+     80% on each trial?
+  b. What is your average bankroll after 1,000 game-plays if you risk
+     20% on each trial?
+  c. Can you find the proportion to risk on each trial that would maximize your 
+     bankroll after 1,000 game-play?
+     
+Look up the Kelly Criterion if you are interested in this question.
+
+```{r}
+# simulate one trial of 1000 game plays
+
+trial <- function(p = 0.5, bank = 100){  
+  game.results <- rbinom(n = 1000, size = 1, prob = 0.55)
+  i <- 1
+  while ((bank > 0) & (i < length(game.results))){
+      risk <- p * bank
+      
+      if (game.results[i] == 1){
+        bank <- bank + risk
+      } else {
+        bank <- bank - risk
+      }
+      i <- i + 1
+  }
+  return(bank)
+}
+
+# replicate to compute average bankroll after many iterations of the 1000 game plays
+
+mean(replicate(n = 10000, expr = trial(p = 0.8)))
+mean(replicate(n = 10000, expr = trial(p = 0.2)))
+
+p.vec <- seq(0, 1, by = .05)
+
+trial.mat <- replicate(n = 1000, sapply(p.vec, trial, bank = 100))
+bank <- apply(trial.mat, 1, mean)
+
+kelly.df <- data.frame(p = p.vec, bank = log((bank)))
+
+ggplot(data = kelly.df, mapping = aes(x = p, y = bank)) + geom_point() +
+  labs(x = "proportion to risk", y = "total bankroll - log scale")
+```
+
+
+***********************
+
+### Question 5 (1 point)
+
+Estimate the value of $\pi$ via a simulation. As a hint, think about the unit
+circle inside a 2 x 2 square.
+
+```{r}
+# check if (x,y) pair is in circle
+in.circle <- function(){
+  sum(runif(2, min = -1, max = 1) ^ 2) <= 1
+}
+
+# estimate of pi
+set.seed(437892)
+pi.estimate <- 4 * mean(replicate(n = 1000000, in.circle()))
+pi.estimate
+
+# absolute difference
+abs(pi.estimate - pi)
+```
+

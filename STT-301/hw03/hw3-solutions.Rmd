@@ -1,0 +1,181 @@
+---
+title: "STT 301 Homework Assignment 3 Solutions"
+author: "Shawn Santo"
+date: "October 23, 2018"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=F}
+library(knitr)
+opts_chunk$set(comment = NA, message = FALSE, warning = FALSE)
+```
+
+### Question 1 (6 points)
+
+The `tb_cases.csv` file (available on D2L - Data Sets section) contains tuberculosis (TB) cases by country, year, age, gender, and diagnosis method. The data is from 1980 to 2013. A data dictionary is available at http://www.who.int/tb/country/data/download/en/.
+
+The objective in question 1 is to make the data tidy. Each of the subsequent parts will help you in the process of tidying the data. The resulting tibble is shown (by default only 10 rows) for most of the parts. You must use the functions in the `tidyr` package and `dplyr` package (both of which are loaded when you load the `tidyverse` package) along with the pipe operator (where applicable) to earn full credit. You will also need to load the
+`stringr` package.
+
+You should think about why you are doing what you are doing and how it is a step in the process to tidy data. This may be a large component of your project, so it is imperative to have a good understanding of what is going on and why it is being done.
+
+```{r echo = FALSE, message=FALSE}
+library(tidyverse)
+library(stringr)
+```
+
+#### Part a (0.25 points)
+
+Read in the `tb_cases.csv` file and save it as an object named `tb.cases`. Convert `tb.cases` to a tibble using `as_tibble` and save it as `tb.cases`. The result should be as below.
+
+```{r echo = T}
+tb.cases <- read.csv(file="tb_cases.csv", header = TRUE, stringsAsFactors = FALSE, na.strings = " ")
+tb.cases <- as_tibble(tb.cases)
+tb.cases
+```
+
+#### Part b (1 point)
+
+Modify `tb.cases` to get the result you see below. Save the new tibble as `tb.cases1`. If you get a tibble with 405,440 rows it is because you did not remove the `NA` values. The below tibble is enough to note all the changes that were made.
+
+```{r echo = T}
+tb.cases1 <- tb.cases %>% gather(new_sp_m014:newrel_f65, key = "diag", value = "cases", na.rm = TRUE)
+tb.cases1
+```
+
+#### Part c (1 point)
+
+A note on the `diag` variable from `tb.cases1`.
+
+  1. The first three letters denote whether it is a new or old case of TB. In this data set all are new cases of TB.
+  2. The next two letters after `new` describe the type of TB.
+    - `rel` stands for relapse cases
+    - `ep` stands for extrapulmonary TB cases
+    - `sn` stands for pulmonary TB cases that could not be diagnosed by a pulmonary smear
+    - `sp` stands for pulmonary TB cases that could be diagnosed by a pulmonary smear
+  3. The subsequent letter gives the gender (`m` or `f`).
+  4. The numbers that conclude the string signify an age group.
+    - 014 = 0-14 years old
+    - 1524 = 15-24 years old
+    - 2534 = 25-34 years old
+    - 3544 = 35-44 years old
+    - 4554 = 45-54 years old
+    - 5564 = 55-64 years old
+    - 65 = 65 or older
+  
+Look at a table of the `diag` variable from `tb.cases1`. You will notice that we have an inconsistency with regards to the values of this variable: `newrel` instead of `new_rel`. We will fix this so all values of the variable start with `new_rel`. To do this, use the `mutate` function (over-write the `diag` variable) along with `str_replace(diag, "newrel", "new_rel")`. Modify `tb.cases1` to get the result you see below. Save the new tibble as `tb.cases2`. You can look at a table of the `diag` variable from your new tibble to see if the change was made correctly.
+
+```{r echo = T}
+tb.cases2 <- tb.cases1 %>% mutate(diag = str_replace(diag, "newrel", "new_rel"))
+tb.cases2
+```
+
+#### Part d (1 point)
+
+Modify `tb.cases2` to get the result you see below. Save the new tibble as `tb.cases3`. The below tibble is enough to note all the changes that were made.
+
+```{r echo = T}
+tb.cases3 <- tb.cases2 %>% separate(diag, c("new", "type", "sex.age"), sep = "_")
+tb.cases3
+```
+
+#### Part e (1 point)
+
+Modify `tb.cases3` to get the result you see below. Save the new tibble as `tb.cases4`. The below tibble is enough to note all the changes that were made.
+
+```{r echo = T}
+tb.cases4 <- tb.cases3 %>% select(-new, -iso2, -iso3)
+tb.cases4
+```
+
+#### Part f (1 point)
+
+Modify `tb.cases4` to get the result you see below. Save the new tibble as `tb.cases5`. The below tibble is enough to note all the changes that were made.
+
+```{r echo = T}
+tb.cases5 <- tb.cases4 %>% separate(sex.age, c("sex", "age"), sep = 1)
+tb.cases5
+```
+
+#### Part g (0.25 points)
+
+Modify `tb.cases5` to get the result you see below. Save the new tibble as `tb.cases6`. The below tibble is enough to note all the changes that were made.
+
+```{r echo = T}
+tb.cases6 <- tb.cases5 %>% select(country, year, age, sex, type, cases)
+tb.cases6
+```
+
+#### Part h (0.50 points)
+
+Use one of the apply family of functions to change each of the character variables to a factor. The tibble should remain named `tb.cases6`. The result is below. 
+
+```{r echo = T}
+tb.cases6[sapply(tb.cases6, is.character)] <- lapply(tb.cases6[sapply(tb.cases6, is.character)],as.factor)
+tb.cases6
+```
+
+***********************
+
+### Question 2 (2 points)
+
+Use the functions in the `dplyr` package along with the tibble `tb.cases6` for the following parts.
+
+#### Part a (0.50 points)
+
+Create a tibble showing the total number of cases of TB for each age group and gender.
+
+```{r}
+tb.cases6 %>% 
+  group_by(age, sex) %>% 
+  summarize(count = sum(cases))
+```
+
+#### Part b (0.50 points)
+
+In what country and year were TB cases highest? 
+
+```{r}
+tb.cases6 %>% 
+  group_by(country, year) %>% 
+  summarize(count = sum(cases)) %>% 
+  arrange(desc(count))
+```
+
+#### Part c (0.50 points)
+
+Create a tibble that shows the total number of TB cases for each year and diagnosis type, but only for years after 2009.
+
+```{r}
+tb.cases6 %>% 
+  filter(year > 2009) %>% 
+  group_by(year, type) %>% 
+  summarize(count = sum(cases))
+```
+
+#### Part d (0.50 points)
+
+Give code to produce the tibble you see below.
+
+```{r}
+result.summary <- tb.cases6 %>% 
+  filter(country %in% c("United States of America", "China", "India", "Brazil", "Indonesia")) %>% 
+  filter(year >= 2008) %>% 
+  group_by(country, year) %>% 
+  summarize(total.cases = sum(cases)) %>% 
+  mutate(avg.per.month = total.cases / 12)
+
+print(result.summary, n = 29)
+```
+
+***********************
+
+### Question 3 (2 points)
+
+Use `ggplot`, or similar packages in the grammar of graphics, to create at least three distinct and informative visualizations of the `tb.cases6` tibble. The plots should be descriptive and well labeled as if you were using these in a presentation or paper. 
+
+Furthermore, you should pose at least one question you would be interested in further investigating based off the plots and your data analysis. The questions need not be answered. It is also okay if the questions you raise are unable to be answered based off the scope of the data. For example: "Does less government spending result in more relapse TB cases?".
+
+Answers will vary.

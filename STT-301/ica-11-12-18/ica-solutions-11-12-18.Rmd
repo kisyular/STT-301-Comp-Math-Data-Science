@@ -1,0 +1,157 @@
+---
+title: "STT 301: More with K-nn"
+author: "Shawn Santo"
+date: "November 12, 2018"
+output: html_document
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(warning=FALSE, message=FALSE, comment = NA)
+```
+
+## Introduction
+
+Learning Objectives
+
+  - K-nn
+  - Linear regression
+  
+*************************
+
+```{r}
+library(tidyverse)
+library(class)
+library(caret)
+```
+
+## Wine Classification with K-nn
+
+### Read in data
+
+```{r}
+wineurl <- "https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data"
+
+wine.df <- read.csv(file = wineurl, header = FALSE)
+
+str(wine.df)
+
+wine.df <- as_tibble(wine.df)
+
+colnames(wine.df) <- c("origin", "alcohol", "acid", 
+                       "ash", "alcalinity", "magnesium", 
+                       "phenols", "flavanoids", "nonflavanoid",
+                       "proanthocyanins","color.int", "hue",
+                       "od", "proline")
+
+wine.df$origin <- as.factor(wine.df$origin)
+```
+
+### Plot the data
+
+Get an idea of which variables influence the wine's origin
+
+```{r}
+wine.df2 <- data.frame(origin = wine.df$origin, scale(wine.df[,-1]))
+wine.df2 <- gather(wine.df2, type,  value, -1)
+ggplot(data = wine.df2, mapping = aes(x = origin, y = value)) + 
+  geom_boxplot() + facet_wrap(~as.factor(type))
+
+ggplot(data = wine.df, mapping=aes(x = flavanoids, 
+                                   y = phenols, 
+                                   color =  origin, 
+                                   shape = origin)) + 
+  geom_point()
+
+with(wine.df, table(origin))
+```
+
+### Training and testing data sets
+
+Split the data into training and testing sets. Use `createDataPartition` from
+the `caret` package. You will need to use the arguments `y`, `p`, and 
+`list = FALSE`. Confirm that your training and testing data sets have 
+approximately equivalent origin proportions between the sets. Set the seed
+to 3033 if you want to obtain identical results.
+
+```{r}
+set.seed(3033)
+
+train.sample <- createDataPartition(y = wine.df$origin, p = 0.7, list = FALSE)
+training <- wine.df[train.sample, ]
+test <- wine.df[-train.sample, ]
+
+# training proportion
+cat("Training data set proportions:", "\n")
+
+with(training, table(origin) / dim(training)[1])
+
+# testing
+cat("Testing data set proportions:", "\n")
+
+with(test, table(origin) / dim(test)[1])
+```
+
+### K-nn
+
+Use the K-nn algorithm to predict the wine origin in the testing data set.
+Feel free to use some or all of the wine features. Can you get a prediction
+accuracy above 98%?
+
+```{r}
+# not scaled
+
+knn.fit <- knn(train = training[-1],
+               test = test[-1],
+               cl = training$origin,
+               k = 21)
+
+table(knn.fit, test$origin)
+
+
+# scaled
+knn.fit <- knn(train = scale(training[-1]),
+               test = scale(test[-1]),
+               cl = training$origin,
+               k = 21)
+
+table(knn.fit, test$origin)
+
+```
+
+## Linear Regression
+
+  1. Select a data set from [http://users.stat.ufl.edu/~winner/datasets.html](http://users.stat.ufl.edu/~winner/datasets.html) in the section "Linear Regression". You can read the data directly
+  into R by following the code above for the `wine` data set.
+  2. Fit a linear regression model with all variables. Which variables
+     are significant? Refine the fit.
+  3. Investigate the refined model fit. Look at $R^2$ and a plot of residuals
+     compared to $y$.
+  4. Make a prediction for $y$ given a set of $x$ values.
+  
+```{r}
+# some data
+hg <- read.csv("http://users.stat.ufl.edu/~winner/data/fishermen_mercury.csv",
+               header = T)
+
+dim(hg)
+
+# some plots
+plot(x = hg$fishmlwk, y = hg$TotHg)
+plot(x = hg$weight, y = hg$TotHg)
+
+# model fits
+hg.fit <- lm(TotHg ~ fisherman + age + restime + height + 
+               weight + fishmlwk + fishpart, data = hg)
+summary(hg.fit)
+
+hg.fit2 <- lm(TotHg ~ weight + fishmlwk, data = hg)
+summary(hg.fit2)
+
+plot(y = hg.fit2$residuals, x = hg$weight )
+
+
+# a prediction
+predict(object = hg.fit2, newdata = data.frame(weight = 70, fishmlwk = 1))
+
+```
+
